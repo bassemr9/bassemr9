@@ -5,222 +5,274 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
   <script src="https://cdn.jsdelivr.net/npm/@twemoji/api@15.1.0/dist/twemoji.min.js" crossorigin="anonymous"></script>
   <style>
     :root {
-      --accent: #a47551; --accent-2: #c19a7b; --rose: #d4a5a5;
-      --vert: #7d9471; --vert-fonce: #5f7556; --rouge: #b5534a;
-      --texte: #3d3229; --texte-2: #7a6a5d; --texte-3: #a8998b;
-      --fond: #f7f2ec; --carte: #fffdfa; --bord: #ebe2d7;
-      --ombre: 0 1px 2px rgba(61,50,41,.04), 0 8px 24px rgba(164,117,81,.08);
-      --ombre-fort: 0 4px 10px rgba(61,50,41,.06), 0 20px 40px rgba(164,117,81,.18);
-      --rayon: 18px;
+      --noir: #121212; --texte: #1c1c1e; --texte-2: #6b6f76; --texte-3: #a1a5ab;
+      --fond: #e9ecef; --app: #f4f5f7; --carte: #ffffff; --bord: #e4e6ea;
+      --vert: #1fa463; --vert-clair: #e3f6ec; --rouge: #ef4444;
+      --orange: #f7931e; --bleu: #2d9cdb; --violet: #8b2fc9; --rose: #f2547d; --jaune: #f5b301;
+      --ombre: 0 1px 2px rgba(0,0,0,.04), 0 4px 16px rgba(0,0,0,.04);
     }
     * { box-sizing: border-box; }
-    body {
-      margin: 0; font-family: 'Plus Jakarta Sans', system-ui, sans-serif; color: var(--texte);
-      background: radial-gradient(circle at 0% 0%, #efe5da 0, transparent 40%),
-                  radial-gradient(circle at 100% 0%, #f3e3dc 0, transparent 35%), var(--fond);
-      min-height: 100vh;
-    }
-    button, input, select, textarea { font: inherit; color: inherit; }
+    body { margin: 0; font-family: 'Inter', system-ui, sans-serif; color: var(--texte); background: var(--fond); }
+    button, input, textarea { font: inherit; color: inherit; }
     button { cursor: pointer; border: 0; background: none; }
-    .page { max-width: 1400px; margin: 0 auto; padding: 14px 16px 40px; }
-    .espace { flex: 1; }
     [hidden] { display: none !important; }
-    img.tw { width: 1.15em; height: 1.15em; vertical-align: -0.2em; }
+    img.tw { width: 1.1em; height: 1.1em; vertical-align: -0.18em; }
 
-    /* ---------- Barre de menu ---------- */
-    .navbar { position: sticky; top: 0; z-index: 5; background: rgba(255,255,255,.85); backdrop-filter: blur(12px);
-              border-bottom: 1px solid var(--bord); box-shadow: 0 1px 10px rgba(164,117,81,.06); }
-    .navbar-int { max-width: 1400px; margin: 0 auto; padding: 10px 16px; display: flex; align-items: center; gap: 12px; }
-    .marque { display: flex; align-items: center; gap: 10px; flex-shrink: 0; }
-    .logo { width: 36px; height: 36px; border-radius: 10px; display: grid; place-items: center; font-size: 19px;
-            background: linear-gradient(135deg, var(--accent), var(--rose)); box-shadow: 0 4px 12px rgba(164,117,81,.35); }
-    .marque h1 { margin: 0; font-size: 17px; font-weight: 800; letter-spacing: -.02em;
-                 background: linear-gradient(135deg, var(--accent), var(--rose)); -webkit-background-clip: text; background-clip: text; color: transparent; }
-    .navbar .champ { flex: 1; position: relative; min-width: 0; }
-    .navbar .champ svg { position: absolute; left: 13px; top: 50%; transform: translateY(-50%); color: var(--texte-3); }
-    .navbar .champ input { width: 100%; padding: 9px 12px 9px 38px; border-radius: 10px; border: 1.5px solid var(--bord);
-                           background: #faf6f1; outline: none; font-size: 14px; transition: all .15s; }
-    .navbar .champ input:focus { border-color: var(--accent-2); background: #fff; box-shadow: 0 0 0 4px rgba(164,117,81,.12); }
-    .navbar .segment { display: inline-flex; background: #f3ece4; border-radius: 10px; padding: 3px; flex-shrink: 0; }
-    .navbar .segment button { padding: 6px 11px; border-radius: 8px; font-weight: 600; font-size: 12px; color: var(--texte-2); }
-    .navbar .segment button.actif { background: #fff; color: var(--accent); box-shadow: 0 2px 6px rgba(61,50,41,.1); }
-    .navbar .btn { padding: 9px 14px; font-size: 13px; }
-    .btn { display: inline-flex; align-items: center; gap: 6px; padding: 11px 18px; border-radius: 12px;
-           font-weight: 700; font-size: 14px; transition: transform .15s, box-shadow .15s, background .15s; white-space: nowrap; }
-    .btn:hover { transform: translateY(-1px); }
-    .btn:active { transform: translateY(0); }
-    .btn-primaire { color: #fff; background: linear-gradient(135deg, var(--accent), var(--accent-2));
-                    box-shadow: 0 6px 16px rgba(164,117,81,.35); }
-    .btn-primaire:hover { box-shadow: 0 10px 22px rgba(164,117,81,.45); }
-    .btn-blanc { background: #fff; border: 1px solid var(--bord); box-shadow: var(--ombre); }
-    .btn-danger { color: #fff; background: var(--rouge); }
-    .btn-doux { background: #f3ece4; color: var(--texte); }
-    .btn[disabled] { opacity: .6; pointer-events: none; }
+    .app { display: flex; min-height: 100vh; background: var(--app); }
 
-    /* ---------- Filtres compacts ---------- */
-    .filtres { background: var(--carte); border-radius: 14px; padding: 10px 14px 6px; box-shadow: var(--ombre);
-               border: 1px solid var(--bord); margin-bottom: 14px; }
-    .filtres .ligne { display: flex; gap: 12px; align-items: flex-start; padding: 4px 0; }
-    .libelle-ligne { flex: 0 0 96px; font-size: 11px; font-weight: 800; text-transform: uppercase; letter-spacing: .05em;
-                     color: var(--texte-3); padding-top: 8px; }
-    .libelle-ligne .compteur { display: inline-block; margin-top: 4px; text-transform: none; letter-spacing: 0; }
-    .filtres .natures, .filtres .puces { flex: 1; min-width: 0; }
-    .filtres .nature { padding: 6px 12px; font-size: 12px; }
-    .filtres .puce { padding: 4px 11px 4px 4px; font-size: 12px; gap: 5px; }
-    .filtres .puce .ico { width: 22px; height: 22px; font-size: 13px; }
-    .puces.replie { max-height: 68px; overflow: hidden; }
-    .filtres-pied { display: flex; align-items: center; border-top: 1px dashed var(--bord); margin-top: 4px; padding-top: 2px; }
-    .filtres-pied .lien { font-size: 12px; padding: 5px 8px; }
+    /* ---------- Barre d'icônes à gauche ---------- */
+    .rail { width: 64px; flex-shrink: 0; display: flex; flex-direction: column; align-items: center; gap: 8px; padding: 18px 0;
+            position: sticky; top: 0; height: 100vh; }
+    .rail .logo { font-weight: 700; font-size: 20px; margin-bottom: 18px; }
+    .rail-btn { width: 38px; height: 38px; border-radius: 50%; display: grid; place-items: center; color: var(--texte-2);
+                border: 1px solid var(--bord); background: var(--carte); transition: all .15s; position: relative; }
+    .rail-btn:hover { color: var(--noir); border-color: #c9ccd1; }
+    .rail-btn.actif { background: var(--noir); color: #fff; border-color: var(--noir); }
+    .rail-btn[data-titre]:hover::after { content: attr(data-titre); position: absolute; left: 48px; white-space: nowrap; background: var(--noir);
+                                          color: #fff; font-size: 12px; padding: 5px 9px; border-radius: 8px; z-index: 30; }
 
-    .compteur { font-size: 11px; font-weight: 700; padding: 2px 8px; border-radius: 999px; background: #e4ebdd; color: var(--vert-fonce); }
-    .lien { font-weight: 700; color: var(--accent); border-radius: 8px; }
-    .lien:hover { background: #f3ece4; }
-    .natures { display: flex; gap: 6px; flex-wrap: wrap; }
-    .nature { padding: 9px 16px; border-radius: 999px; font-weight: 700; font-size: 13px; background: #f3ece4; color: var(--texte-2);
-              border: 1.5px solid transparent; transition: all .15s; }
-    .nature:hover { border-color: #e0d2c3; }
-    .nature.actif { background: var(--texte); color: #fff; }
-    .nature small { opacity: .6; margin-left: 4px; }
+    .contenu { flex: 1; min-width: 0; padding: 16px 22px 30px 6px; }
 
+    /* ---------- En-tête ---------- */
+    .entete { display: flex; align-items: center; gap: 12px; margin-bottom: 14px; flex-wrap: wrap; }
+    .marque { font-weight: 700; font-size: 20px; letter-spacing: -.03em; }
+    .marque small { display: block; font-size: 9px; font-weight: 500; color: var(--texte-3); letter-spacing: .02em; margin-top: -3px; }
+    .espace { flex: 1; }
+    .pilules { display: inline-flex; gap: 6px; flex-wrap: wrap; }
+    .pilule { padding: 8px 16px; border-radius: 999px; border: 1px solid #cfd2d6; font-size: 13px; font-weight: 500;
+              background: transparent; transition: all .15s; white-space: nowrap; }
+    .pilule:hover { border-color: var(--noir); }
+    .pilule.actif { background: var(--noir); color: #fff; border-color: var(--noir); }
+    .pilule small { opacity: .55; margin-left: 4px; }
+
+    .titre-ligne { display: flex; align-items: flex-end; gap: 16px; margin-bottom: 16px; flex-wrap: wrap; }
+    .titre-ligne p { margin: 0 0 4px; font-size: 13px; color: var(--texte-2); }
+    .titre-ligne h1 { margin: 0; font-size: 30px; font-weight: 600; letter-spacing: -.03em; }
+    .recherche { position: relative; flex: 0 1 380px; margin-left: auto; }
+    .recherche svg { position: absolute; left: 14px; top: 50%; transform: translateY(-50%); color: var(--texte-3); }
+    .recherche input { width: 100%; padding: 11px 14px 11px 40px; border-radius: 999px; border: 1px solid var(--bord);
+                       background: var(--carte); outline: none; font-size: 14px; }
+    .recherche input:focus { border-color: var(--noir); }
+
+    /* ---------- Grille principale ---------- */
+    .grille-principale { display: grid; grid-template-columns: 290px 1fr; gap: 14px; align-items: start; }
+    .panneau { background: var(--carte); border-radius: 22px; padding: 16px; box-shadow: var(--ombre); }
+    .panneau-tete { display: flex; align-items: center; justify-content: space-between; margin-bottom: 12px; gap: 8px; }
+    .panneau-tete h3 { margin: 0; font-size: 15px; font-weight: 600; }
+    .rond { width: 32px; height: 32px; border-radius: 50%; border: 1px solid var(--bord); display: grid; place-items: center;
+            color: var(--texte); transition: all .15s; flex-shrink: 0; }
+    .rond:hover { background: var(--noir); color: #fff; border-color: var(--noir); }
+
+    .filtres { position: sticky; top: 16px; }
+    .filtres .pilule { padding: 6px 13px; font-size: 12px; }
+    .compte-ligne { display: flex; align-items: center; gap: 8px; margin: 14px 0 10px; padding: 7px 10px 7px 7px;
+                    border: 1px solid var(--bord); border-radius: 999px; font-size: 13px; font-weight: 500; }
+    .compte-ligne b { width: 24px; height: 24px; border-radius: 50%; background: var(--noir); color: #fff; font-size: 11px;
+                      display: grid; place-items: center; }
+    .compte-ligne .lien { margin-left: auto; font-size: 12px; color: var(--texte-2); font-weight: 500; }
+    .compte-ligne .lien:hover { color: var(--noir); }
     .puces { display: flex; flex-wrap: wrap; gap: 6px; }
-    .puce { display: inline-flex; align-items: center; gap: 7px; padding: 8px 14px 8px 8px; border-radius: 999px;
-            background: #f4efe9; color: #9a8b7d; font-size: 13px; font-weight: 600; border: 1.5px solid #ebe2d7; transition: all .18s; }
-    .puce .ico { width: 28px; height: 28px; border-radius: 50%; display: grid; place-items: center; font-size: 16px;
-                 background: #fff; filter: grayscale(80%); transition: filter .18s; }
-    .puce:hover { border-color: #c5d3bb; color: var(--texte); transform: translateY(-1px); }
+    .puce { display: inline-flex; align-items: center; gap: 6px; padding: 5px 11px 5px 5px; border-radius: 999px; font-size: 12px;
+            font-weight: 500; background: #f3f4f6; color: #7c8087; border: 1px solid transparent; transition: all .15s; }
+    .puce .ico { width: 22px; height: 22px; border-radius: 50%; background: #fff; display: grid; place-items: center; font-size: 13px;
+                 filter: grayscale(80%); }
+    .puce:hover { color: var(--texte); border-color: #cfd2d6; }
     .puce:hover .ico { filter: none; }
-    .puce.actif { background: linear-gradient(135deg, var(--vert), #93a888); color: #fff; border-color: var(--vert);
-                  box-shadow: 0 6px 14px rgba(16,185,129,.35); }
+    .puce.actif { background: var(--vert); color: #fff; }
     .puce.actif .ico { filter: none; }
-    .puce.actif::after { content: '✓'; font-weight: 800; margin-left: 2px; }
+    .puce.actif::after { content: '✓'; font-weight: 700; }
     .puce.impossible { opacity: .35; }
-    .puce.impossible:hover { transform: none; }
 
-    /* ---------- Résultats ---------- */
-    .resultats-tete { display: flex; align-items: baseline; justify-content: space-between; margin: 4px 2px 10px; gap: 10px; flex-wrap: wrap; }
-    .resultats-tete h3 { margin: 0; font-size: 15px; font-weight: 800; }
-    .resultats-tete span { color: var(--texte-2); font-size: 12px; }
-    .grille { display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 12px; }
-    .carte { background: var(--carte); border-radius: 14px; overflow: hidden; box-shadow: var(--ombre); border: 1px solid var(--bord);
-             cursor: pointer; transition: transform .2s, box-shadow .2s; display: flex; flex-direction: column;
-             animation: apparait .35s ease both; }
-    .carte:hover { transform: translateY(-4px); box-shadow: var(--ombre-fort); }
-    @keyframes apparait { from { opacity: 0; transform: translateY(8px); } }
-    .carte-visuel { height: 62px; position: relative; display: grid; place-items: center; }
-    .carte-visuel .emoji { font-size: 34px; filter: drop-shadow(0 6px 8px rgba(0,0,0,.18)); transition: transform .25s; }
-    .carte:hover .emoji { transform: scale(1.12) rotate(-6deg); }
-    .etiquette { position: absolute; top: 8px; left: 8px; padding: 3px 8px; border-radius: 999px; font-size: 10px; font-weight: 800;
-                 background: rgba(255,255,255,.9); letter-spacing: .03em; }
-    .code { position: absolute; top: 8px; right: 8px; font-size: 10px; font-weight: 700; color: #6b5b4e;
-            background: rgba(255,255,255,.6); padding: 3px 6px; border-radius: 6px; }
-    .carte-corps { padding: 10px 12px 12px; display: flex; flex-direction: column; gap: 7px; flex: 1; }
-    .carte-corps h4 { margin: 0; font-size: 14px; font-weight: 800; letter-spacing: -.01em; }
-    .carte .ingr { gap: 4px; }
-    .carte .ingr span { font-size: 11px; padding: 2px 7px; }
-    .carte .astuce { font-size: 11px; padding: 5px 8px; }
-    .ingr { display: flex; flex-wrap: wrap; gap: 6px; }
-    .ingr span { font-size: 12px; font-weight: 600; padding: 4px 9px; border-radius: 8px; background: #f5efe8; color: #6b5b4e; }
-    .ingr span.choisi { background: #e4ebdd; color: var(--vert-fonce); }
-    .ingr.fac span { background: #fff; border: 1px dashed #dccfc1; color: var(--texte-2); }
-    .astuce { margin-top: auto; font-size: 12px; color: #8a5a3b; background: #fbf3e8; border-radius: 10px; padding: 8px 10px; }
-    mark { background: #f1dcc2; color: inherit; border-radius: 3px; padding: 0 1px; }
-    .vide { grid-column: 1 / -1; text-align: center; padding: 50px 20px; background: var(--carte); border-radius: 20px;
-            border: 2px dashed var(--bord); color: var(--texte-2); }
-    .vide div { font-size: 46px; margin-bottom: 8px; }
-    .vide b { display: block; color: var(--texte); font-size: 16px; margin-bottom: 4px; }
+    /* ---------- Aperçus ---------- */
+    .droite { display: flex; flex-direction: column; gap: 14px; min-width: 0; }
+    .apercus { display: grid; grid-template-columns: 300px 1fr; gap: 14px; }
+    .donut-zone { display: flex; flex-direction: column; align-items: center; }
+    .donut { width: 128px; height: 128px; }
+    .legende { display: flex; flex-wrap: wrap; justify-content: center; gap: 4px 12px; margin-top: 10px; font-size: 12px; color: var(--texte-2); }
+    .legende button { display: inline-flex; align-items: center; gap: 5px; padding: 2px 4px; border-radius: 6px; }
+    .legende button:hover, .legende button.actif { color: var(--noir); font-weight: 600; }
+    .legende i { width: 8px; height: 8px; border-radius: 50%; display: inline-block; }
+    .barres { display: flex; flex-direction: column; gap: 9px; }
+    .barre { display: block; width: 100%; text-align: left; }
+    .barre-tete { display: flex; justify-content: space-between; font-size: 12px; font-weight: 500; margin-bottom: 4px; }
+    .barre-tete span:last-child { color: var(--texte-3); }
+    .piste { height: 12px; border-radius: 999px; background: repeating-linear-gradient(135deg, #eceef1 0 4px, #f6f7f8 4px 8px); overflow: hidden; }
+    .remplissage { height: 100%; border-radius: 999px; transition: width .4s ease;
+                   background-image: repeating-linear-gradient(135deg, rgba(255,255,255,.18) 0 4px, transparent 4px 8px); }
+    .barre:hover .barre-tete span:first-child, .barre.actif .barre-tete span:first-child { color: var(--vert); }
+
+    /* ---------- Cartes de repas ---------- */
+    .grille { display: grid; grid-template-columns: repeat(auto-fill, minmax(195px, 1fr)); gap: 10px; }
+    .carte { border-radius: 16px; padding: 12px; cursor: pointer; transition: transform .15s, box-shadow .15s;
+             display: flex; flex-direction: column; gap: 6px; animation: apparait .3s ease both; }
+    .carte:hover { transform: translateY(-2px); box-shadow: 0 8px 18px rgba(0,0,0,.07); }
+    @keyframes apparait { from { opacity: 0; transform: translateY(6px); } }
+    .carte-tete { display: flex; align-items: center; justify-content: space-between; }
+    .carte-ico { width: 30px; height: 30px; border-radius: 9px; display: grid; place-items: center; font-size: 17px; background: #fff; }
+    .coche { width: 20px; height: 20px; border-radius: 50%; border: 1.5px solid #b9bdc3; display: grid; place-items: center;
+             font-size: 11px; color: transparent; }
+    .carte:hover .coche { border-color: var(--noir); color: var(--noir); }
+    .carte h4 { margin: 2px 0 0; font-size: 13px; font-weight: 600; line-height: 1.3; }
+    .carte .desc { font-size: 11.5px; color: var(--texte-2); line-height: 1.45; }
+    .carte .desc b { color: var(--vert); font-weight: 600; }
+    .carte .meta { display: flex; justify-content: space-between; font-size: 10.5px; color: var(--texte-3); margin-top: auto; padding-top: 4px; }
+    mark { background: #fff1a8; color: inherit; border-radius: 3px; }
+    .vide { grid-column: 1 / -1; text-align: center; padding: 40px 20px; color: var(--texte-2); }
+    .vide div { font-size: 40px; margin-bottom: 6px; }
+    .vide b { display: block; color: var(--texte); margin-bottom: 4px; }
+
+    /* ---------- Boutons ---------- */
+    .btn { display: inline-flex; align-items: center; gap: 6px; padding: 10px 18px; border-radius: 999px; font-weight: 600; font-size: 13px;
+           transition: all .15s; white-space: nowrap; }
+    .btn-noir { background: var(--noir); color: #fff; }
+    .btn-noir:hover { background: #333; }
+    .btn-contour { border: 1px solid #cfd2d6; }
+    .btn-contour:hover { border-color: var(--noir); }
+    .btn-danger { color: var(--rouge); border: 1px solid #f5c2c2; }
+    .btn-danger:hover { background: var(--rouge); color: #fff; }
+    .btn[disabled] { opacity: .5; pointer-events: none; }
 
     /* ---------- Fenêtres ---------- */
-    .fond { position: fixed; inset: 0; background: rgba(61,50,41,.45); backdrop-filter: blur(6px); display: none;
-            align-items: center; justify-content: center; padding: 16px; z-index: 10; }
+    .fond { position: fixed; inset: 0; background: rgba(18,18,18,.35); backdrop-filter: blur(4px); display: none;
+            align-items: center; justify-content: center; padding: 16px; z-index: 40; }
     .fond.ouvert { display: flex; animation: fondu .2s ease; }
     @keyframes fondu { from { opacity: 0; } }
-    .fenetre { background: #fff; border-radius: 24px; width: 100%; max-width: 560px; max-height: 92vh; overflow: auto;
-               box-shadow: 0 30px 60px rgba(61,50,41,.3); animation: monte .25s cubic-bezier(.2,.9,.3,1.2); }
-    @keyframes monte { from { opacity: 0; transform: translateY(20px) scale(.97); } }
-    .fenetre-visuel { height: 150px; display: grid; place-items: center; position: relative; }
-    .fenetre-visuel .emoji { font-size: 74px; filter: drop-shadow(0 10px 16px rgba(0,0,0,.2)); }
-    .fermer-x { position: absolute; top: 14px; right: 14px; width: 34px; height: 34px; border-radius: 50%;
-                background: rgba(255,255,255,.9); font-size: 16px; font-weight: 700; }
-    .fenetre-corps { padding: 22px 24px 24px; }
-    .fenetre-corps h2 { margin: 0 0 4px; font-size: 22px; font-weight: 800; letter-spacing: -.02em; }
-    .sous-titre { color: var(--texte-2); font-size: 13px; margin-bottom: 18px; }
-    .bloc { margin-bottom: 16px; }
-    .bloc h5 { margin: 0 0 8px; font-size: 12px; text-transform: uppercase; letter-spacing: .06em; color: var(--texte-3); }
-    .bloc .texte { background: #faf6f1; border-radius: 12px; padding: 12px; font-size: 14px; }
-    .actions { display: flex; gap: 10px; justify-content: flex-end; flex-wrap: wrap; margin-top: 20px; }
+    .fenetre { background: var(--carte); border-radius: 24px; width: 100%; max-width: 540px; max-height: 92vh; overflow: auto; padding: 22px;
+               box-shadow: 0 30px 60px rgba(0,0,0,.2); animation: monte .22s ease; }
+    @keyframes monte { from { opacity: 0; transform: translateY(14px); } }
+    .fenetre-tete { display: flex; align-items: flex-start; gap: 12px; margin-bottom: 16px; }
+    .fenetre-tete .carte-ico { width: 48px; height: 48px; border-radius: 14px; font-size: 26px; }
+    .fenetre-tete h2 { margin: 0; font-size: 20px; font-weight: 600; letter-spacing: -.02em; }
+    .fenetre-tete p { margin: 3px 0 0; font-size: 12px; color: var(--texte-2); }
+    .fenetre-tete .rond { margin-left: auto; }
+    .bloc { margin-bottom: 14px; }
+    .bloc h5 { margin: 0 0 7px; font-size: 11px; text-transform: uppercase; letter-spacing: .06em; color: var(--texte-3); font-weight: 600; }
+    .bloc .texte { background: var(--app); border-radius: 12px; padding: 11px 12px; font-size: 13px; }
+    .etiquettes { display: flex; flex-wrap: wrap; gap: 6px; }
+    .etiquettes span { font-size: 12px; font-weight: 500; padding: 5px 10px; border-radius: 999px; background: var(--app); }
+    .etiquettes span.choisi { background: var(--vert-clair); color: var(--vert); }
+    .etiquettes.fac span { background: #fff; border: 1px dashed #cfd2d6; }
+    .actions { display: flex; gap: 8px; justify-content: flex-end; flex-wrap: wrap; margin-top: 18px; }
     .actions .gauche { margin-right: auto; }
 
-    .form label { display: block; font-size: 13px; font-weight: 700; margin: 14px 0 6px; }
-    .form input, .form textarea { width: 100%; padding: 12px 14px; border-radius: 12px; border: 1.5px solid var(--bord);
-                                  background: #fdfaf6; outline: none; transition: border .15s, box-shadow .15s; resize: vertical; }
-    .form input:focus, .form textarea:focus { border-color: var(--accent-2); box-shadow: 0 0 0 4px rgba(164,117,81,.12); background: #fff; }
-    .form .deux { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
-    .aide { font-size: 12px; color: var(--texte-3); margin-top: 5px; }
+    .form label { display: block; font-size: 12px; font-weight: 600; margin: 12px 0 5px; color: var(--texte-2); }
+    .form input, .form textarea { width: 100%; padding: 11px 13px; border-radius: 12px; border: 1px solid var(--bord); background: var(--app);
+                                  outline: none; resize: vertical; font-size: 14px; }
+    .form input:focus, .form textarea:focus { border-color: var(--noir); background: #fff; }
+    .form .deux { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+    .aide { font-size: 11px; color: var(--texte-3); margin-top: 4px; }
 
-    /* ---------- Notification ---------- */
-    #message { position: fixed; bottom: 22px; right: 22px; background: var(--texte); color: #fff; padding: 13px 18px; border-radius: 14px;
-               font-weight: 600; font-size: 14px; box-shadow: 0 12px 30px rgba(61,50,41,.3); z-index: 20;
-               transform: translateY(120px); opacity: 0; transition: all .3s cubic-bezier(.2,.9,.3,1.2); }
+    #message { position: fixed; bottom: 20px; right: 20px; background: var(--noir); color: #fff; padding: 12px 18px; border-radius: 999px;
+               font-size: 13px; font-weight: 500; z-index: 50; transform: translateY(100px); opacity: 0; transition: all .3s ease; }
     #message.visible { transform: none; opacity: 1; }
 
-    @media (max-width: 1000px) { .navbar .btn .txt { display: none; } }
-    @media (max-width: 760px) {
-      .navbar-int { flex-wrap: wrap; gap: 8px; }
-      .marque h1 { display: none; }
-      .navbar .champ { order: 5; flex-basis: 100%; }
-      .navbar .segment { margin-right: auto; }
-      .filtres .ligne { flex-direction: column; gap: 4px; }
-      .libelle-ligne { flex: none; padding-top: 0; }
-      .grille { grid-template-columns: repeat(auto-fill, minmax(155px, 1fr)); gap: 10px; }
+    @media (max-width: 1100px) { .apercus { grid-template-columns: 1fr 1fr; } }
+    @media (max-width: 900px) {
+      .grille-principale { grid-template-columns: 1fr; }
+      .filtres { position: static; }
+    }
+    @media (max-width: 640px) {
+      .rail { display: none; }
+      .contenu { padding: 14px; }
+      .apercus { grid-template-columns: 1fr; order: 2; }
+      .titre-ligne h1 { font-size: 24px; }
+      .recherche { flex-basis: 100%; }
+      .grille { grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); }
       .form .deux { grid-template-columns: 1fr; }
     }
   </style>
 </head>
 <body>
-  <nav class="navbar">
-    <div class="navbar-int">
-      <div class="marque"><div class="logo">🍽️</div><h1>Idée Repas</h1></div>
-      <div class="champ">
-        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg>
-        <input id="recherche" placeholder="Rechercher un plat ou un ingrédient…" oninput="afficher()" autocomplete="off">
-      </div>
-      <div class="segment" id="mode">
-        <button data-mode="tout" class="actif" onclick="choisirMode('tout')">Tout</button>
-        <button data-mode="nom" onclick="choisirMode('nom')">Nom</button>
-        <button data-mode="ingr" onclick="choisirMode('ingr')">Ingrédients</button>
-      </div>
-      <button class="btn btn-blanc" onclick="aleatoire()" title="Idée au hasard">🎲<span class="txt"> Surprends-moi</span></button>
-      <button class="btn btn-primaire" onclick="ouvrirFormulaire()" title="Nouveau repas">＋<span class="txt"> Nouveau</span></button>
-    </div>
-  </nav>
+  <div class="app">
 
-  <div class="page">
+    <aside class="rail">
+      <div class="logo">ir.</div>
+      <button class="rail-btn actif" data-titre="Tous les repas" onclick="toutEffacer()">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7" rx="2"/><rect x="14" y="3" width="7" height="7" rx="2"/><rect x="3" y="14" width="7" height="7" rx="2"/><rect x="14" y="14" width="7" height="7" rx="2"/></svg>
+      </button>
+      <button class="rail-btn" data-titre="Nouveau repas" onclick="ouvrirFormulaire()">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M12 5v14M5 12h14"/></svg>
+      </button>
+      <button class="rail-btn" data-titre="Idée au hasard" onclick="aleatoire()">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M16 3h5v5M4 20 21 3M21 16v5h-5M15 15l6 6M4 4l5 5"/></svg>
+      </button>
+      <button class="rail-btn" data-titre="Réinitialiser les filtres" onclick="toutEffacer()">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 12a9 9 0 1 0 3-6.7L3 8"/><path d="M3 3v5h5"/></svg>
+      </button>
+    </aside>
 
-    <section class="filtres">
-      <div class="ligne">
-        <span class="libelle-ligne">Catégorie</span>
-        <div class="natures" id="natures"></div>
-      </div>
-      <div class="ligne">
-        <span class="libelle-ligne">Ingrédients <span class="compteur" id="nbChoisis" hidden></span></span>
-        <div class="puces replie" id="puces"></div>
-      </div>
-      <div class="filtres-pied">
-        <button class="lien" id="btnPlus" onclick="basculerPlus()" hidden>Voir tous les ingrédients ▾</button>
-        <span class="espace"></span>
-        <button class="lien" onclick="toutEffacer()">↺ Réinitialiser</button>
-      </div>
-    </section>
+    <main class="contenu">
+      <header class="entete">
+        <div class="marque">idée repas<small>carnet de recettes</small></div>
+        <div class="espace"></div>
+        <div class="pilules" id="mode">
+          <button class="pilule actif" data-mode="tout" onclick="choisirMode('tout')">Tout</button>
+          <button class="pilule" data-mode="nom" onclick="choisirMode('nom')">Par nom</button>
+          <button class="pilule" data-mode="ingr" onclick="choisirMode('ingr')">Par ingrédient</button>
+        </div>
+      </header>
 
-    <div class="resultats-tete">
-      <h3 id="titreRes">Tous les repas</h3>
-      <span id="info">Chargement…</span>
-    </div>
-    <div class="grille" id="liste"></div>
+      <div class="titre-ligne">
+        <div>
+          <p>Gérez et trouvez vos idées de repas</p>
+          <h1>Mes Repas</h1>
+        </div>
+        <div class="recherche">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg>
+          <input id="recherche" placeholder="Rechercher un plat ou un ingrédient…" oninput="afficher()" autocomplete="off">
+        </div>
+      </div>
+
+      <div class="grille-principale">
+        <section class="panneau filtres">
+          <div class="panneau-tete">
+            <h3>Filtres</h3>
+            <button class="rond" title="Nouveau repas" onclick="ouvrirFormulaire()">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><path d="M12 5v14M5 12h14"/></svg>
+            </button>
+          </div>
+          <div class="pilules" id="natures"></div>
+          <div class="compte-ligne">
+            <b id="nbIngr">0</b> Ingrédients
+            <button class="lien" id="effacerIngr" onclick="effacerIngredients()" hidden>Effacer</button>
+          </div>
+          <div class="puces" id="puces"></div>
+        </section>
+
+        <div class="droite">
+          <div class="apercus">
+            <section class="panneau">
+              <div class="panneau-tete">
+                <h3>Répartition</h3>
+                <button class="rond" title="Idée au hasard" onclick="aleatoire()">
+                  <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><path d="M7 17 17 7M8 7h9v9"/></svg>
+                </button>
+              </div>
+              <div class="donut-zone">
+                <svg class="donut" id="donut" viewBox="0 0 42 42"></svg>
+                <div class="legende" id="legende"></div>
+              </div>
+            </section>
+            <section class="panneau">
+              <div class="panneau-tete"><h3>Ingrédients les plus utilisés</h3></div>
+              <div class="barres" id="barres"></div>
+            </section>
+          </div>
+
+          <section class="panneau">
+            <div class="panneau-tete">
+              <h3 id="titreRes">Tous les repas</h3>
+              <span style="font-size:12px;color:var(--texte-2)" id="info">Chargement…</span>
+            </div>
+            <div class="grille" id="liste"></div>
+          </section>
+        </div>
+      </div>
+    </main>
   </div>
 
   <!-- Détail -->
@@ -230,50 +282,51 @@
 
   <!-- Formulaire -->
   <div class="fond" id="fondForm" onclick="if(event.target===this)fermer('fondForm')">
-    <div class="fenetre">
-      <div class="fenetre-corps form">
-        <h2 id="titreForm">Nouveau repas</h2>
-        <div class="sous-titre">Les informations sont enregistrées directement dans votre Google Sheet.</div>
-        <input type="hidden" id="f_code">
-        <div class="deux">
-          <div>
-            <label>Nom du repas *</label>
-            <input id="f_libelle" placeholder="Ex : COUSCOUS AU POULET">
-          </div>
-          <div>
-            <label>Catégorie</label>
-            <input id="f_nature" list="listeNatures" placeholder="REPAS, FAST FOOD…">
-            <datalist id="listeNatures"></datalist>
-          </div>
+    <div class="fenetre form">
+      <div class="fenetre-tete">
+        <div>
+          <h2 id="titreForm">Nouveau repas</h2>
+          <p>Enregistré directement dans votre Google Sheet</p>
         </div>
-        <label>🥘 Ingrédients principaux</label>
-        <textarea id="f_principal" rows="2" placeholder="TOMATE / OIGNON / POULET"></textarea>
-        <div class="aide">Séparez les ingrédients par « / » ou « - »</div>
-        <label>➕ Ingrédients facultatifs</label>
-        <textarea id="f_facultatif" rows="2"></textarea>
-        <label>💡 Astuce</label>
-        <textarea id="f_astuce" rows="2"></textarea>
-        <label>📝 Remarque</label>
-        <textarea id="f_remarque" rows="2"></textarea>
-        <div class="actions">
-          <button class="btn btn-doux" onclick="fermer('fondForm')">Annuler</button>
-          <button class="btn btn-primaire" id="btnEnregistrer" onclick="enregistrer()">Enregistrer</button>
+        <button class="rond" onclick="fermer('fondForm')">✕</button>
+      </div>
+      <input type="hidden" id="f_code">
+      <div class="deux">
+        <div>
+          <label>Nom du repas *</label>
+          <input id="f_libelle" placeholder="Ex : COUSCOUS AU POULET">
         </div>
+        <div>
+          <label>Catégorie</label>
+          <input id="f_nature" list="listeNatures" placeholder="REPAS, FAST FOOD…">
+          <datalist id="listeNatures"></datalist>
+        </div>
+      </div>
+      <label>Ingrédients principaux</label>
+      <textarea id="f_principal" rows="2" placeholder="TOMATE / OIGNON / POULET"></textarea>
+      <div class="aide">Séparez les ingrédients par « / » ou « - »</div>
+      <label>Ingrédients facultatifs</label>
+      <textarea id="f_facultatif" rows="2"></textarea>
+      <label>Astuce</label>
+      <textarea id="f_astuce" rows="2"></textarea>
+      <label>Remarque</label>
+      <textarea id="f_remarque" rows="2"></textarea>
+      <div class="actions">
+        <button class="btn btn-contour" onclick="fermer('fondForm')">Annuler</button>
+        <button class="btn btn-noir" id="btnEnregistrer" onclick="enregistrer()">Enregistrer</button>
       </div>
     </div>
   </div>
 
   <!-- Confirmation -->
   <div class="fond" id="fondConfirm" onclick="if(event.target===this)fermer('fondConfirm')">
-    <div class="fenetre" style="max-width:400px">
-      <div class="fenetre-corps" style="text-align:center">
-        <div style="font-size:48px">🗑️</div>
-        <h2>Supprimer ce repas ?</h2>
-        <div class="sous-titre" id="texteConfirm"></div>
-        <div class="actions" style="justify-content:center">
-          <button class="btn btn-doux" onclick="fermer('fondConfirm')">Annuler</button>
-          <button class="btn btn-danger" id="btnConfirm">Supprimer</button>
-        </div>
+    <div class="fenetre" style="max-width:380px;text-align:center">
+      <div style="font-size:40px">🗑️</div>
+      <h2 style="margin:6px 0;font-size:19px;font-weight:600">Supprimer ce repas ?</h2>
+      <div style="font-size:13px;color:var(--texte-2)" id="texteConfirm"></div>
+      <div class="actions" style="justify-content:center">
+        <button class="btn btn-contour" onclick="fermer('fondConfirm')">Annuler</button>
+        <button class="btn btn-noir" style="background:var(--rouge)" id="btnConfirm">Supprimer</button>
       </div>
     </div>
   </div>
@@ -319,7 +372,6 @@
     }
 
     function charger() {
-      emojis(document.body);
       document.getElementById('liste').innerHTML = '<div class="vide"><div>⏳</div><b>Chargement des repas…</b></div>';
       serveur('getRepas', undefined, maj, erreur);
       if (DEMO) toast('Mode démo : vos vraies données s’affichent dans Google Sheets');
@@ -360,17 +412,14 @@
 
     // ---------- Couleurs et emojis ----------
 
-    const DEGRADES = [
-      ['#efe4d8', '#e3cfbd'], ['#f1e2dc', '#e3c9bf'], ['#e4e6dc', '#cfd4c3'],
-      ['#e9e2d6', '#d8cfbf'], ['#ece5df', '#d9cec5'], ['#eee3d5', '#dfc8ae']
+    // Couleur vive (graphiques) + fond pastel (cartes) par catégorie
+    const COULEURS = [
+      ['#f7931e', '#fff1e3'], ['#2d9cdb', '#e6f3fb'], ['#f2547d', '#fde8ee'],
+      ['#1fa463', '#e3f6ec'], ['#8b2fc9', '#f1e6fa'], ['#f5b301', '#fef6dc']
     ];
+    let couleurNature = {};
 
-    function degrade(nature) {
-      let h = 0;
-      for (const ch of String(nature || '')) h = (h * 31 + ch.charCodeAt(0)) >>> 0;
-      const [a, b] = DEGRADES[h % DEGRADES.length];
-      return `linear-gradient(135deg, ${a}, ${b})`;
-    }
+    function couleurs(nature) { return couleurNature[nature] || COULEURS[COULEURS.length - 1]; }
 
     // Emoji du plat d'après son nom, sinon d'après sa catégorie
     const PLATS = [
@@ -419,21 +468,25 @@
       return new Set(decouper(r.principal + ' / ' + r.facultatif).map(canon));
     }
 
+    // Ingrédients sans doublons de synonymes (OIGNON / BSAL -> OIGNON)
+    function uniques(s) { return [...new Set(decouper(s).map(canon))]; }
+
     // Libellé d'une puce : nom de référence + synonymes trouvés dans la feuille
     let libellesIngr = {};
+    let compteIngr = {};
     let choisis = new Set();
 
     function construirePuces() {
-      const compte = {};
+      compteIngr = {};
       libellesIngr = {};
       repas.forEach(r => decouper(r.principal + ' / ' + r.facultatif).forEach(brut => {
         const c = canon(brut);
         (libellesIngr[c] = libellesIngr[c] || new Set([c])).add(brut.toUpperCase());
       }));
-      repas.forEach(r => ingredientsDe(r).forEach(c => compte[c] = (compte[c] || 0) + 1));
+      repas.forEach(r => ingredientsDe(r).forEach(c => compteIngr[c] = (compteIngr[c] || 0) + 1));
       // On retire des choix les ingrédients qui n'existent plus
-      choisis = new Set([...choisis].filter(c => compte[c]));
-      return Object.keys(compte).sort((a, b) => compte[b] - compte[a] || a.localeCompare(b));
+      choisis = new Set([...choisis].filter(c => compteIngr[c]));
+      return Object.keys(compteIngr).sort((a, b) => compteIngr[b] - compteIngr[a] || a.localeCompare(b));
     }
 
     function basculer(c) {
@@ -441,13 +494,15 @@
       afficher();
     }
 
-    function choisirNature(n) { natureChoisie = n; afficher(); }
+    function choisirNature(n) { natureChoisie = natureChoisie === n && n ? '' : n; afficher(); }
 
     function choisirMode(m) {
       mode = m;
-      document.querySelectorAll('#mode button').forEach(b => b.classList.toggle('actif', b.dataset.mode === m));
+      document.querySelectorAll('#mode .pilule').forEach(b => b.classList.toggle('actif', b.dataset.mode === m));
       afficher();
     }
+
+    function effacerIngredients() { choisis.clear(); afficher(); }
 
     function toutEffacer() {
       choisis.clear();
@@ -456,15 +511,7 @@
       afficher();
     }
 
-    // Ingrédients sans doublons de synonymes (OIGNON / BSAL -> OIGNON), pour des cartes compactes
-    function uniques(s) { return [...new Set(decouper(s).map(canon))]; }
-
-    function puceIngr(i, termes) {
-      const c = canon(i);
-      return `<span class="${choisis.has(c) ? 'choisi' : ''}">${icone(c)} ${surligner(i, termes)}</span>`;
-    }
-
-    // ---------- Filtrage et affichage ----------
+    // ---------- Filtrage ----------
 
     function filtrer() {
       const termes = norm(document.getElementById('recherche').value).split(/\s+/).filter(Boolean);
@@ -482,14 +529,45 @@
       };
     }
 
-    function afficherNatures() {
-      const compte = {};
-      repas.forEach(r => { if (r.nature) compte[r.nature] = (compte[r.nature] || 0) + 1; });
+    // ---------- Affichage ----------
+
+    function afficherNatures(natures, compte) {
       const bouton = (val, txt, nb) =>
-        `<button class="nature ${natureChoisie === val ? 'actif' : ''}" onclick="choisirNature('${esc(val)}')">${txt}<small>${nb}</small></button>`;
-      document.getElementById('natures').innerHTML = bouton('', '✨ Toutes', repas.length) +
-        Object.keys(compte).sort().map(n => bouton(n, esc(n), compte[n])).join('');
-      return Object.keys(compte).length;
+        `<button class="pilule ${natureChoisie === val ? 'actif' : ''}" onclick="choisirNature('${esc(val)}')">${txt}<small>${nb}</small></button>`;
+      document.getElementById('natures').innerHTML = bouton('', 'Toutes', repas.length) +
+        natures.map(n => bouton(n, esc(n), compte[n])).join('');
+    }
+
+    function afficherDonut(natures, compte) {
+      const total = natures.reduce((s, n) => s + compte[n], 0) || 1;
+      const C = 2 * Math.PI * 15.9155; // circonférence = 100
+      let decalage = 25, svg = '<circle cx="21" cy="21" r="15.9155" fill="none" stroke="#eef0f2" stroke-width="5"/>';
+      natures.forEach(n => {
+        const part = compte[n] / total * 100;
+        const trait = Math.max(part - (natures.length > 1 ? 2 : 0), 0.5);
+        const opacite = natureChoisie && natureChoisie !== n ? .25 : 1;
+        svg += `<circle cx="21" cy="21" r="15.9155" fill="none" stroke="${couleurs(n)[0]}" stroke-width="5" stroke-linecap="round"
+                  stroke-dasharray="${trait} ${C - trait}" stroke-dashoffset="${decalage}" opacity="${opacite}"
+                  style="cursor:pointer" onclick="choisirNature('${esc(n)}')"/>`;
+        decalage -= part;
+      });
+      svg += `<text x="21" y="21" text-anchor="middle" font-size="7" font-weight="700" fill="#1c1c1e">${repas.length}</text>
+              <text x="21" y="27" text-anchor="middle" font-size="3.2" fill="#a1a5ab">repas</text>`;
+      document.getElementById('donut').innerHTML = svg;
+      document.getElementById('legende').innerHTML = natures.map(n =>
+        `<button class="${natureChoisie === n ? 'actif' : ''}" onclick="choisirNature('${esc(n)}')">
+           <i style="background:${couleurs(n)[0]}"></i>${esc(n)} : ${compte[n]}</button>`).join('');
+    }
+
+    const COULEURS_BARRES = ['#8b2fc9', '#ef4444', '#2d9cdb', '#1fa463', '#f5b301'];
+
+    function afficherBarres(tous) {
+      const max = repas.length || 1;
+      document.getElementById('barres').innerHTML = tous.slice(0, 5).map((c, i) => `
+        <button class="barre ${choisis.has(c) ? 'actif' : ''}" onclick="basculer('${esc(c)}')">
+          <div class="barre-tete"><span>${icone(c)} ${esc(c)}</span><span>${compteIngr[c]} / ${max} repas</span></div>
+          <div class="piste"><div class="remplissage" style="width:${compteIngr[c] / max * 100}%;background-color:${COULEURS_BARRES[i]}"></div></div>
+        </button>`).join('') || '<span class="aide">Aucun ingrédient pour l’instant.</span>';
     }
 
     function afficherPuces(resultats, tous) {
@@ -501,56 +579,51 @@
         const libelle = [...libellesIngr[c]].join(' / ');
         return `<button class="puce ${classe}" onclick="basculer('${esc(c)}')" title="${esc(libelle)}">
                   <span class="ico">${icone(c)}</span>${esc(libelle)}</button>`;
-      }).join('') || '<span class="aide">Aucun ingrédient pour l’instant.</span>';
-      const badge = document.getElementById('nbChoisis');
-      badge.hidden = !choisis.size;
-      badge.textContent = choisis.size + ' choisi' + (choisis.size > 1 ? 's' : '');
+      }).join('');
+      document.getElementById('nbIngr').textContent = tous.length;
+      document.getElementById('effacerIngr').hidden = !choisis.size;
+    }
+
+    function texteIngr(s, termes) {
+      return uniques(s).map(c => choisis.has(c) ? `<b>${esc(c.toLowerCase())}</b>` : surligner(c.toLowerCase(), termes)).join(', ');
     }
 
     function afficher() {
       const tous = construirePuces();
+      const compte = {};
+      repas.forEach(r => { if (r.nature) compte[r.nature] = (compte[r.nature] || 0) + 1; });
+      const natures = Object.keys(compte).sort();
+      couleurNature = {};
+      natures.forEach((n, i) => couleurNature[n] = COULEURS[i % COULEURS.length]);
+
       const { termes, liste } = filtrer();
-      afficherNatures();
+      afficherNatures(natures, compte);
+      afficherDonut(natures, compte);
+      afficherBarres(tous);
       afficherPuces(liste, tous);
 
       const filtre = termes.length || choisis.size || natureChoisie;
       document.getElementById('titreRes').textContent = filtre ? 'Résultats' : 'Tous les repas';
-      document.getElementById('info').textContent = `${liste.length} sur ${repas.length} repas`;
+      document.getElementById('info').textContent = `${liste.length} sur ${repas.length}`;
 
-      document.getElementById('liste').innerHTML = liste.map((r, n) => `
-        <article class="carte" style="animation-delay:${Math.min(n, 12) * 30}ms" onclick="voir('${esc(r.code)}')">
-          <div class="carte-visuel" style="background:${degrade(r.nature)}">
-            <span class="etiquette">${esc(r.nature || 'SANS CATÉGORIE')}</span>
-            <span class="code">${esc(r.code)}</span>
-            <span class="emoji">${emojiRepas(r)}</span>
+      document.getElementById('liste').innerHTML = liste.map((r, n) => {
+        const [vif, pastel] = couleurs(r.nature);
+        return `
+        <article class="carte" style="background:${pastel};animation-delay:${Math.min(n, 12) * 25}ms" onclick="voir('${esc(r.code)}')">
+          <div class="carte-tete">
+            <span class="carte-ico" style="box-shadow:inset 0 0 0 1.5px ${vif}33">${emojiRepas(r)}</span>
+            <span class="coche">✓</span>
           </div>
-          <div class="carte-corps">
-            <h4>${surligner(r.libelle, termes)}</h4>
-            <div class="ingr">${uniques(r.principal).map(i => puceIngr(i, termes)).join('')}</div>
-            ${r.facultatif ? `<div class="ingr fac">${uniques(r.facultatif).map(i => puceIngr(i, termes)).join('')}</div>` : ''}
-            ${r.astuce ? `<div class="astuce">💡 ${surligner(r.astuce, termes)}</div>` : ''}
-          </div>
-        </article>`).join('') ||
+          <h4>${surligner(r.libelle, termes)}</h4>
+          <div class="desc">${texteIngr(r.principal, termes)}${r.facultatif ? ` <span style="opacity:.7">(+ ${texteIngr(r.facultatif, termes)})</span>` : ''}</div>
+          <div class="meta"><span style="color:${vif};font-weight:600">${esc(r.nature || '—')}</span><span>${r.astuce ? '💡 ' : ''}${esc(r.code)}</span></div>
+        </article>`;
+      }).join('') ||
         `<div class="vide"><div>🔍</div><b>Aucun repas trouvé</b>Essayez de retirer un ingrédient ou une catégorie.
-           <div style="font-size:inherit;margin-top:14px"><button class="btn btn-doux" onclick="toutEffacer()">Réinitialiser les filtres</button></div></div>`;
-      majPlus();
-      emojis(document.getElementById('natures'));
-      emojis(document.getElementById('puces'));
-      emojis(document.getElementById('liste'));
-    }
+           <div style="font-size:inherit;margin-top:12px"><button class="btn btn-contour" onclick="toutEffacer()">Réinitialiser les filtres</button></div></div>`;
 
-    // Affiche « Voir tous les ingrédients » seulement si la liste dépasse 2 lignes
-    let plusOuvert = false;
-    function majPlus() {
-      const p = document.getElementById('puces'), b = document.getElementById('btnPlus');
-      p.classList.add('replie');
-      const deborde = p.scrollHeight > p.clientHeight + 2;
-      p.classList.toggle('replie', !plusOuvert);
-      b.hidden = !deborde;
-      b.textContent = plusOuvert ? 'Réduire ▴' : 'Voir tous les ingrédients ▾';
+      emojis(document.querySelector('.contenu'));
     }
-    function basculerPlus() { plusOuvert = !plusOuvert; majPlus(); }
-    window.addEventListener('resize', majPlus);
 
     // Remplace les emojis par des images Twemoji (identiques sur Windows, Mac et téléphone)
     function emojis(el) {
@@ -560,24 +633,25 @@
     function voir(code) {
       const r = repas.find(x => x.code === code);
       if (!r) return;
-      const liste = s => decouper(s).map(i => puceIngr(i, [])).join('') || '<span>—</span>';
+      const [vif, pastel] = couleurs(r.nature);
+      const etiquettes = s => decouper(s).map(i =>
+        `<span class="${choisis.has(canon(i)) ? 'choisi' : ''}">${icone(canon(i))} ${esc(i)}</span>`).join('') || '<span>—</span>';
       document.getElementById('detail').innerHTML = `
-        <div class="fenetre-visuel" style="background:${degrade(r.nature)}">
-          <span class="etiquette">${esc(r.nature || 'SANS CATÉGORIE')}</span>
-          <button class="fermer-x" onclick="fermer('fondDetail')">✕</button>
-          <span class="emoji">${emojiRepas(r)}</span>
-        </div>
-        <div class="fenetre-corps">
-          <h2>${esc(r.libelle)}</h2>
-          <div class="sous-titre">Réf. ${esc(r.code)} · ${ingredientsDe(r).size} ingrédient(s)</div>
-          <div class="bloc"><h5>🥘 Ingrédients principaux</h5><div class="ingr">${liste(r.principal)}</div></div>
-          ${r.facultatif ? `<div class="bloc"><h5>➕ Facultatifs</h5><div class="ingr fac">${liste(r.facultatif)}</div></div>` : ''}
-          ${r.astuce ? `<div class="bloc"><h5>💡 Astuce</h5><div class="texte">${esc(r.astuce)}</div></div>` : ''}
-          ${r.remarque ? `<div class="bloc"><h5>📝 Remarque</h5><div class="texte">${esc(r.remarque)}</div></div>` : ''}
-          <div class="actions">
-            <button class="btn btn-doux gauche" style="color:var(--rouge)" onclick="supprimer('${esc(r.code)}')">🗑️ Supprimer</button>
-            <button class="btn btn-primaire" onclick="fermer('fondDetail');ouvrirFormulaire('${esc(r.code)}')">✏️ Modifier</button>
+        <div class="fenetre-tete">
+          <span class="carte-ico" style="background:${pastel}">${emojiRepas(r)}</span>
+          <div>
+            <h2>${esc(r.libelle)}</h2>
+            <p><span style="color:${vif};font-weight:600">${esc(r.nature || 'Sans catégorie')}</span> · Réf. ${esc(r.code)} · ${ingredientsDe(r).size} ingrédient(s)</p>
           </div>
+          <button class="rond" onclick="fermer('fondDetail')">✕</button>
+        </div>
+        <div class="bloc"><h5>Ingrédients principaux</h5><div class="etiquettes">${etiquettes(r.principal)}</div></div>
+        ${r.facultatif ? `<div class="bloc"><h5>Facultatifs</h5><div class="etiquettes fac">${etiquettes(r.facultatif)}</div></div>` : ''}
+        ${r.astuce ? `<div class="bloc"><h5>💡 Astuce</h5><div class="texte">${esc(r.astuce)}</div></div>` : ''}
+        ${r.remarque ? `<div class="bloc"><h5>📝 Remarque</h5><div class="texte">${esc(r.remarque)}</div></div>` : ''}
+        <div class="actions">
+          <button class="btn btn-danger gauche" onclick="supprimer('${esc(r.code)}')">Supprimer</button>
+          <button class="btn btn-noir" onclick="fermer('fondDetail');ouvrirFormulaire('${esc(r.code)}')">Modifier</button>
         </div>`;
       emojis(document.getElementById('detail'));
       document.getElementById('fondDetail').classList.add('ouvert');
@@ -585,7 +659,7 @@
 
     function ouvrirFormulaire(code) {
       const r = repas.find(x => x.code === code) || {};
-      document.getElementById('titreForm').textContent = code ? '✏️ Modifier ' + (r.libelle || code) : '✨ Nouveau repas';
+      document.getElementById('titreForm').textContent = code ? 'Modifier ' + (r.libelle || code) : 'Nouveau repas';
       ['code', 'libelle', 'nature', 'principal', 'facultatif', 'astuce', 'remarque']
         .forEach(c => document.getElementById('f_' + c).value = r[c] || '');
       document.getElementById('fondForm').classList.add('ouvert');
@@ -596,11 +670,11 @@
       const data = {};
       ['code', 'libelle', 'nature', 'principal', 'facultatif', 'astuce', 'remarque']
         .forEach(c => data[c] = document.getElementById('f_' + c).value);
-      if (!data.libelle.trim()) { toast('⚠️ Le nom du repas est obligatoire'); return; }
+      if (!data.libelle.trim()) { toast('Le nom du repas est obligatoire'); return; }
       const btn = document.getElementById('btnEnregistrer');
       btn.disabled = true;
       serveur('enregistrerRepas', data,
-        l => { btn.disabled = false; fermer('fondForm'); maj(l); toast('✅ Repas enregistré'); },
+        l => { btn.disabled = false; fermer('fondForm'); maj(l); toast('✓ Repas enregistré'); },
         e => { btn.disabled = false; erreur(e); });
     }
 
@@ -610,7 +684,7 @@
       document.getElementById('btnConfirm').onclick = () => {
         fermer('fondConfirm');
         serveur('supprimerRepas', code,
-          l => { fermer('fondDetail'); maj(l); toast('🗑️ Repas supprimé'); },
+          l => { fermer('fondDetail'); maj(l); toast('Repas supprimé'); },
           erreur);
       };
       document.getElementById('fondConfirm').classList.add('ouvert');
@@ -630,7 +704,7 @@
       clearTimeout(m._t); m._t = setTimeout(() => m.classList.remove('visible'), 2800);
     }
 
-    function erreur(e) { toast('❌ Erreur : ' + (e && e.message ? e.message : e)); }
+    function erreur(e) { toast('Erreur : ' + (e && e.message ? e.message : e)); }
 
     document.addEventListener('keydown', e => {
       if (e.key === 'Escape') ['fondDetail', 'fondForm', 'fondConfirm'].forEach(fermer);
