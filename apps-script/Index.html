@@ -90,10 +90,20 @@
     .puce.actif .nb { color: var(--vert); }
     .puce.impossible { opacity: .35; }
     .ingr-zone { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 7px; }
-    .familles .pilule { padding: 4px 11px; font-size: 11.5px; display: inline-flex; align-items: center; gap: 3px; }
-    .familles .pilule .sel { background: var(--vert); color: #fff; border-radius: 999px; padding: 0 6px; font-size: 10px;
-                             font-weight: 700; margin-left: 3px; line-height: 16px; }
-    .familles .pilule.a-classer:not(.actif) { border-style: dashed; color: #b45309; border-color: #f0c78a; }
+    .ingr-tete { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
+    .replier { font-size: 12px; font-weight: 600; padding: 5px 12px; border-radius: 999px; border: 1px solid #cfd2d6; }
+    .replier:hover { border-color: var(--noir); }
+    .choisis-ligne { display: flex; gap: 6px; flex-wrap: wrap; align-items: center; font-size: 12px; color: var(--texte-3); }
+    /* Cadres de familles, rangés côte à côte comme un mur de briques */
+    .blocs { columns: 250px; column-gap: 8px; }
+    .bloc-fam { break-inside: avoid; margin-bottom: 8px; border-radius: 14px; padding: 8px 9px 9px; border: 1px solid transparent; }
+    .bloc-fam h4 { margin: 0 0 7px; font-size: 12px; font-weight: 700; display: flex; align-items: center; gap: 5px; }
+    .bloc-fam h4 small { color: var(--texte-3); font-weight: 500; }
+    .bloc-fam h4 .sel { margin-left: auto; background: var(--vert); color: #fff; border-radius: 999px; padding: 0 7px; font-size: 10px; line-height: 17px; }
+    .bloc-fam .puces { gap: 5px; }
+    .bloc-fam .puce { background: rgba(255,255,255,.85); }
+    .bloc-fam .puce.actif { background: var(--vert); }
+    .bloc-fam.a-classer { border: 1px dashed #f0c78a; }
 
     .resultats { min-height: calc(100vh - 150px); }
 
@@ -171,6 +181,7 @@
       .bande > .pilules { flex-wrap: wrap; }
       .bande .separateur, .bande .compte-mini { display: none; }
       .bande .ingr-zone { flex: 1 1 100%; }
+      .blocs { columns: 1; }
       .stats .donut { display: none; }
       .natures { flex-direction: row; }
       .resultats { min-height: 0; }
@@ -220,8 +231,11 @@
         <span class="separateur"></span>
         <span class="compte-mini" title="Nombre d'ingrédients"><b id="nbIngr">0</b></span>
         <div class="ingr-zone">
-          <div class="pilules familles" id="familles"></div>
-          <div class="puces" id="puces"></div>
+          <div class="ingr-tete">
+            <button class="replier" id="btnReplier" onclick="basculerReplie()"></button>
+            <div class="choisis-ligne" id="choisisLigne"></div>
+          </div>
+          <div class="blocs" id="blocs"></div>
         </div>
         <button class="lien" id="effacerIngr" onclick="effacerIngredients()" hidden>Effacer</button>
       </section>
@@ -420,7 +434,16 @@
       ['PROTÉINES', '🥩'], ['LÉGUMES', '🥬'], ['FÉCULENTS', '🍞'], ['PRODUITS LAITIERS', '🧀'],
       ['ÉPICES & SAUCES', '🌶️'], ['FRUITS', '🍋']
     ];
-    let familleChoisie = '';
+    // Couleur pastel du cadre de chaque famille
+    const FOND_FAMILLE = {
+      'PROTÉINES': '#fdeeee', 'LÉGUMES': '#e9f6ee', 'FÉCULENTS': '#fbf3e2', 'PRODUITS LAITIERS': '#fff8d9',
+      'ÉPICES & SAUCES': '#fdeee5', 'FRUITS': '#fff4dc', 'À CLASSER': '#fffaf2'
+    };
+    const FOND_AUTRE = '#eef3f9';
+
+    // Bloc des ingrédients replié ou non (mémorisé dans ce navigateur)
+    let replie = false;
+    try { replie = localStorage.getItem('ingredientsReplies') === '1'; } catch (e) {}
 
     function chargerIngredients(liste) {
       SYNONYMES = {}; FAMILLE = {}; ICONE_FEUILLE = {};
@@ -505,11 +528,14 @@
 
     function effacerIngredients() { choisis.clear(); afficher(); }
 
-    function choisirFamille(f) { familleChoisie = familleChoisie === f ? '' : f; afficher(); }
+    function basculerReplie() {
+      replie = !replie;
+      try { localStorage.setItem('ingredientsReplies', replie ? '1' : '0'); } catch (e) {}
+      afficher();
+    }
 
     function toutEffacer() {
       choisis.clear();
-      familleChoisie = '';
       natureChoisie = '';
       document.getElementById('recherche').value = '';
       afficher();
@@ -571,22 +597,31 @@
       const ordre = FAMILLES.map(([f]) => f).filter(f => parFamille[f]);
       Object.keys(parFamille).filter(f => !ordre.includes(f) && f !== A_CLASSER).sort().forEach(f => ordre.push(f));
       if (parFamille[A_CLASSER]) ordre.push(A_CLASSER);
-      if (familleChoisie && !parFamille[familleChoisie]) familleChoisie = '';
 
-      const pastille = (f, txt, liste, classe) => {
-        const nbSel = liste.filter(c => choisis.has(c)).length;
-        return `<button class="pilule ${familleChoisie === f ? 'actif' : ''} ${classe || ''}" onclick="choisirFamille('${esc(f)}')">
-                  ${txt}<small>${liste.length}</small>${nbSel ? `<span class="sel">${nbSel}</span>` : ''}</button>`;
-      };
-      document.getElementById('familles').innerHTML = pastille('', 'Toutes', tous) + ordre.map(f =>
-        pastille(f, `${emojiFamille(f)} ${esc(f.charAt(0) + f.slice(1).toLowerCase())}`, parFamille[f], f === A_CLASSER ? 'a-classer' : '')).join('');
-
-      const visibles = familleChoisie ? parFamille[familleChoisie] : tous;
-      document.getElementById('puces').innerHTML = visibles.map(c => {
+      const puce = c => {
         const classe = choisis.has(c) ? 'actif' : possibles.has(c) ? '' : 'impossible';
         const libelle = [...libellesIngr[c]].join(' / ');
         return `<button class="puce ${classe}" onclick="basculer('${esc(c)}')" title="${esc(libelle)} : ${compteIngr[c]} repas">
                   <span class="ico">${icone(c)}</span>${esc(libelle)}<span class="nb">${compteIngr[c]}</span></button>`;
+      };
+      const nomFamille = f => f.charAt(0) + f.slice(1).toLowerCase();
+
+      // Bouton replier / afficher, et rappel des ingrédients choisis quand c'est replié
+      document.getElementById('btnReplier').textContent = replie ? 'Afficher les ingrédients ▾' : 'Masquer les ingrédients ▴';
+      const ligne = document.getElementById('choisisLigne');
+      ligne.hidden = !replie;
+      ligne.innerHTML = choisis.size ? tous.filter(c => choisis.has(c)).map(puce).join('') : 'Aucun ingrédient choisi';
+
+      // Un cadre par famille, tous ouverts
+      const blocs = document.getElementById('blocs');
+      blocs.hidden = replie;
+      blocs.innerHTML = ordre.map(f => {
+        const liste = parFamille[f];
+        const nbSel = liste.filter(c => choisis.has(c)).length;
+        return `<div class="bloc-fam ${f === A_CLASSER ? 'a-classer' : ''}" style="background:${FOND_FAMILLE[f] || FOND_AUTRE}">
+                  <h4>${emojiFamille(f)} ${esc(nomFamille(f))} <small>${liste.length}</small>${nbSel ? `<span class="sel">${nbSel} ✓</span>` : ''}</h4>
+                  <div class="puces">${liste.map(puce).join('')}</div>
+                </div>`;
       }).join('') || '<span class="aide">Aucun ingrédient pour l’instant.</span>';
       document.getElementById('nbIngr').textContent = tous.length;
       document.getElementById('effacerIngr').hidden = !choisis.size;
