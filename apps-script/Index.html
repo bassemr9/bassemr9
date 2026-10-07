@@ -90,8 +90,42 @@
   <script>
     let repas = [];
 
+    // Hors de Google Sheets (aperçu du fichier), on utilise des données de démonstration
+    const DEMO = typeof google === 'undefined' || !google.script;
+    let demo = [
+      { code: 'R001', nature: 'REPAS', libelle: 'MOSLI AZ3AR AU POULET', principal: 'TOMATE - OIGNON / BSAL - POIVRON / FILFIL - POULET / DJEJ', facultatif: '', astuce: 'FAIRE ROUGIR AU FOUR', remarque: '' },
+      { code: 'R002', nature: 'REPAS', libelle: 'TCHICH AU POISSON', principal: 'TOMATE - OIGNON / BSAL - POIVRON / FILFIL / POISSON', facultatif: '', astuce: '', remarque: '' },
+      { code: 'R003', nature: 'REPAS', libelle: 'TCHALWICHA', principal: 'TOMATE - OIGNON / BSAL - POIVRON / FILFIL', facultatif: '', astuce: '', remarque: '' },
+      { code: 'R004', nature: 'FAST FOOD', libelle: 'HAMBURGER', principal: 'TOMATE - OIGNON / BSAL - POIVRON / FILFIL / BURGER', facultatif: '', astuce: '', remarque: '' },
+      { code: 'R005', nature: 'FAST FOOD', libelle: 'PIZZA', principal: 'TOMATE / THON / OEUF', facultatif: 'FROMAGE', astuce: '', remarque: '' },
+      { code: 'R006', nature: 'REPAS', libelle: 'M7AMMAR - MHAMMAR', principal: 'HROUS / STEAK SANS OS / TOMATE CONCENTRE', facultatif: '', astuce: '', remarque: '' }
+    ];
+    const demoServeur = {
+      getRepas: () => demo,
+      enregistrerRepas: r => {
+        const i = demo.findIndex(x => x.code === r.code);
+        const max = demo.reduce((m, x) => Math.max(m, parseInt(x.code.replace(/\D/g, ''), 10) || 0), 0);
+        const n = {};
+        Object.keys(r).forEach(k => n[k] = String(r[k] || '').trim().toUpperCase());
+        n.code = i >= 0 ? demo[i].code : 'R' + String(max + 1).padStart(3, '0');
+        if (i >= 0) demo[i] = n; else demo.push(n);
+        return demo;
+      },
+      supprimerRepas: code => (demo = demo.filter(x => x.code !== code))
+    };
+
+    // Appelle une fonction de Code.gs (ou sa version démo)
+    function serveur(fn, arg, ok, ko) {
+      if (DEMO) {
+        try { ok(JSON.parse(JSON.stringify(demoServeur[fn](arg)))); } catch (e) { ko(e); }
+        return;
+      }
+      google.script.run.withSuccessHandler(ok).withFailureHandler(ko)[fn](arg);
+    }
+
     function charger() {
-      google.script.run.withSuccessHandler(maj).withFailureHandler(erreur).getRepas();
+      serveur('getRepas', undefined, maj, erreur);
+      if (DEMO) toast('Mode démo : les données réelles s’affichent dans Google Sheets');
     }
 
     function maj(liste) {
@@ -192,18 +226,16 @@
       if (!data.libelle.trim()) { toast('Le nom du repas est obligatoire.'); return; }
       const btn = document.getElementById('btnEnregistrer');
       btn.disabled = true;
-      google.script.run
-        .withSuccessHandler(l => { btn.disabled = false; fermer('fondForm'); maj(l); toast('Repas enregistré ✔'); })
-        .withFailureHandler(e => { btn.disabled = false; erreur(e); })
-        .enregistrerRepas(data);
+      serveur('enregistrerRepas', data,
+        l => { btn.disabled = false; fermer('fondForm'); maj(l); toast('Repas enregistré ✔'); },
+        e => { btn.disabled = false; erreur(e); });
     }
 
     function supprimer(code) {
       if (!confirm('Supprimer le repas ' + code + ' ?')) return;
-      google.script.run
-        .withSuccessHandler(l => { fermer('fondDetail'); maj(l); toast('Repas supprimé'); })
-        .withFailureHandler(erreur)
-        .supprimerRepas(code);
+      serveur('supprimerRepas', code,
+        l => { fermer('fondDetail'); maj(l); toast('Repas supprimé'); },
+        erreur);
     }
 
     function aleatoire() {
