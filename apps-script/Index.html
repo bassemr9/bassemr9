@@ -89,6 +89,11 @@
     .puce.actif { background: var(--vert); color: #fff; }
     .puce.actif .nb { color: var(--vert); }
     .puce.impossible { opacity: .35; }
+    .ingr-zone { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 7px; }
+    .familles .pilule { padding: 4px 11px; font-size: 11.5px; display: inline-flex; align-items: center; gap: 3px; }
+    .familles .pilule .sel { background: var(--vert); color: #fff; border-radius: 999px; padding: 0 6px; font-size: 10px;
+                             font-weight: 700; margin-left: 3px; line-height: 16px; }
+    .familles .pilule.a-classer:not(.actif) { border-style: dashed; color: #b45309; border-color: #f0c78a; }
 
     .resultats { min-height: calc(100vh - 150px); }
 
@@ -165,7 +170,7 @@
       .bande { flex-wrap: wrap; border-radius: 18px; }
       .bande > .pilules { flex-wrap: wrap; }
       .bande .separateur, .bande .compte-mini { display: none; }
-      .bande .puces { flex: 1 1 100%; }
+      .bande .ingr-zone { flex: 1 1 100%; }
       .stats .donut { display: none; }
       .natures { flex-direction: row; }
       .resultats { min-height: 0; }
@@ -214,7 +219,10 @@
         <div class="pilules natures" id="natures"></div>
         <span class="separateur"></span>
         <span class="compte-mini" title="Nombre d'ingrédients"><b id="nbIngr">0</b></span>
-        <div class="puces" id="puces"></div>
+        <div class="ingr-zone">
+          <div class="pilules familles" id="familles"></div>
+          <div class="puces" id="puces"></div>
+        </div>
         <button class="lien" id="effacerIngr" onclick="effacerIngredients()" hidden>Effacer</button>
       </section>
 
@@ -301,8 +309,15 @@
       { code: 'R005', nature: 'FAST FOOD', libelle: 'PIZZA', principal: 'TOMATE / THON / OEUF', facultatif: 'FROMAGE', astuce: '', remarque: '' },
       { code: 'R006', nature: 'REPAS', libelle: 'M7AMMAR - MHAMMAR', principal: 'HROUS / STEAK SANS OS / TOMATE CONCENTRE', facultatif: '', astuce: '', remarque: '' }
     ];
+    // Contenu de démonstration de l'onglet "Ingrédients"
+    const demoIngredients = [
+      ['TOMATE', 'LÉGUMES', ''], ['OIGNON', 'LÉGUMES', 'BSAL'], ['POIVRON', 'LÉGUMES', 'FILFIL'],
+      ['POULET', 'PROTÉINES', 'DJEJ'], ['POISSON', 'PROTÉINES', ''], ['THON', 'PROTÉINES', ''], ['OEUF', 'PROTÉINES', ''],
+      ['BURGER', 'PROTÉINES', ''], ['STEAK SANS OS', 'PROTÉINES', ''], ['FROMAGE', 'PRODUITS LAITIERS', ''],
+      ['HROUS', 'ÉPICES & SAUCES', ''], ['TOMATE CONCENTRE', 'ÉPICES & SAUCES', '']
+    ].map(([nom, famille, syn]) => ({ nom, famille, synonymes: syn ? [syn] : [], icone: '' }));
     const demoServeur = {
-      getRepas: () => demo,
+      getDonnees: () => ({ repas: demo, ingredients: demoIngredients }),
       enregistrerRepas: r => {
         const i = demo.findIndex(x => x.code === r.code);
         const max = demo.reduce((m, x) => Math.max(m, parseInt(x.code.replace(/\D/g, ''), 10) || 0), 0);
@@ -310,9 +325,9 @@
         Object.keys(r).forEach(k => n[k] = String(r[k] || '').trim().toUpperCase());
         n.code = i >= 0 ? demo[i].code : 'R' + String(max + 1).padStart(3, '0');
         if (i >= 0) demo[i] = n; else demo.push(n);
-        return demo;
+        return demoServeur.getDonnees();
       },
-      supprimerRepas: code => (demo = demo.filter(x => x.code !== code))
+      supprimerRepas: code => { demo = demo.filter(x => x.code !== code); return demoServeur.getDonnees(); }
     };
 
     // Appelle une fonction de Code.gs (ou sa version démo)
@@ -326,12 +341,15 @@
 
     function charger() {
       document.getElementById('liste').innerHTML = '<div class="vide"><div>⏳</div><b>Chargement des repas…</b></div>';
-      serveur('getRepas', undefined, maj, erreur);
+      serveur('getDonnees', undefined, maj, erreur);
       if (DEMO) toast('Mode démo : vos vraies données s’affichent dans Google Sheets');
     }
 
-    function maj(liste) {
-      repas = liste || [];
+    function maj(donnees) {
+      // Accepte aussi l'ancien format (simple liste de repas)
+      const d = Array.isArray(donnees) ? { repas: donnees, ingredients: [] } : (donnees || {});
+      repas = d.repas || [];
+      chargerIngredients(d.ingredients || []);
       const natures = [...new Set(repas.map(r => r.nature).filter(Boolean))].sort();
       if (natureChoisie && !natures.includes(natureChoisie)) natureChoisie = '';
       document.getElementById('listeNatures').innerHTML = natures.map(n => `<option value="${esc(n)}">`).join('');
@@ -391,8 +409,37 @@
 
     // ---------- Ingrédients : synonymes et icônes ----------
 
-    // Nom en dialecte -> nom de référence (ajoutez-en ici si besoin)
-    const SYNONYMES = { BSAL: 'OIGNON', FILFIL: 'POIVRON', DJEJ: 'POULET', HOUT: 'POISSON', ADHAM: 'OEUF', JBEN: 'FROMAGE', BATATA: 'POMME DE TERRE' };
+    // Remplis depuis l'onglet "Ingrédients" du Google Sheet
+    let SYNONYMES = {};   // nom ou synonyme -> nom de référence
+    let FAMILLE = {};     // nom de référence -> famille
+    let ICONE_FEUILLE = {}; // nom de référence -> icône choisie dans la feuille
+
+    const A_CLASSER = 'À CLASSER';
+    // Ordre et emoji des familles connues ; une famille inventée dans la feuille s'ajoute après
+    const FAMILLES = [
+      ['PROTÉINES', '🥩'], ['LÉGUMES', '🥬'], ['FÉCULENTS', '🍞'], ['PRODUITS LAITIERS', '🧀'],
+      ['ÉPICES & SAUCES', '🌶️'], ['FRUITS', '🍋']
+    ];
+    let familleChoisie = '';
+
+    function chargerIngredients(liste) {
+      SYNONYMES = {}; FAMILLE = {}; ICONE_FEUILLE = {};
+      liste.forEach(i => {
+        const nom = String(i.nom || '').toUpperCase();
+        if (!nom) return;
+        SYNONYMES[nom] = nom;
+        (i.synonymes || []).forEach(s => SYNONYMES[String(s).toUpperCase()] = nom);
+        if (i.famille) FAMILLE[nom] = String(i.famille).toUpperCase();
+        if (i.icone) ICONE_FEUILLE[nom] = i.icone;
+      });
+    }
+
+    function familleDe(c) { return FAMILLE[c] || A_CLASSER; }
+
+    function emojiFamille(f) {
+      const connue = FAMILLES.find(([nom]) => norm(nom) === norm(f));
+      return connue ? connue[1] : f === A_CLASSER ? '📦' : '🏷️';
+    }
 
     // Le premier motif qui correspond donne l'icône (l'ordre compte)
     const ICONES = [
@@ -411,6 +458,7 @@
     function canon(i) { const u = i.toUpperCase(); return SYNONYMES[u] || u; }
 
     function icone(nom) {
+      if (ICONE_FEUILLE[nom]) return ICONE_FEUILLE[nom];
       const n = norm(nom);
       const trouve = ICONES.find(([re]) => re.test(n));
       return trouve ? trouve[1] : '🥄';
@@ -457,8 +505,11 @@
 
     function effacerIngredients() { choisis.clear(); afficher(); }
 
+    function choisirFamille(f) { familleChoisie = familleChoisie === f ? '' : f; afficher(); }
+
     function toutEffacer() {
       choisis.clear();
+      familleChoisie = '';
       natureChoisie = '';
       document.getElementById('recherche').value = '';
       afficher();
@@ -514,7 +565,24 @@
       // Ingrédients présents dans au moins un des résultats actuels
       const possibles = new Set();
       resultats.forEach(r => ingredientsDe(r).forEach(c => possibles.add(c)));
-      document.getElementById('puces').innerHTML = tous.map(c => {
+      // Familles présentes, dans l'ordre : connues, puis inventées dans la feuille, puis « À classer »
+      const parFamille = {};
+      tous.forEach(c => (parFamille[familleDe(c)] = parFamille[familleDe(c)] || []).push(c));
+      const ordre = FAMILLES.map(([f]) => f).filter(f => parFamille[f]);
+      Object.keys(parFamille).filter(f => !ordre.includes(f) && f !== A_CLASSER).sort().forEach(f => ordre.push(f));
+      if (parFamille[A_CLASSER]) ordre.push(A_CLASSER);
+      if (familleChoisie && !parFamille[familleChoisie]) familleChoisie = '';
+
+      const pastille = (f, txt, liste, classe) => {
+        const nbSel = liste.filter(c => choisis.has(c)).length;
+        return `<button class="pilule ${familleChoisie === f ? 'actif' : ''} ${classe || ''}" onclick="choisirFamille('${esc(f)}')">
+                  ${txt}<small>${liste.length}</small>${nbSel ? `<span class="sel">${nbSel}</span>` : ''}</button>`;
+      };
+      document.getElementById('familles').innerHTML = pastille('', 'Toutes', tous) + ordre.map(f =>
+        pastille(f, `${emojiFamille(f)} ${esc(f.charAt(0) + f.slice(1).toLowerCase())}`, parFamille[f], f === A_CLASSER ? 'a-classer' : '')).join('');
+
+      const visibles = familleChoisie ? parFamille[familleChoisie] : tous;
+      document.getElementById('puces').innerHTML = visibles.map(c => {
         const classe = choisis.has(c) ? 'actif' : possibles.has(c) ? '' : 'impossible';
         const libelle = [...libellesIngr[c]].join(' / ');
         return `<button class="puce ${classe}" onclick="basculer('${esc(c)}')" title="${esc(libelle)} : ${compteIngr[c]} repas">
