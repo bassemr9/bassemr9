@@ -69,9 +69,6 @@
     .separateur { width: 1px; align-self: stretch; background: var(--bord); flex-shrink: 0; }
     .compte-mini b { width: 24px; height: 24px; border-radius: 50%; background: var(--noir); color: #fff; font-size: 11px;
                      display: grid; place-items: center; }
-    .defile { flex: 1; min-width: 0; display: flex; align-items: center; gap: 4px; }
-    .fleche { width: 24px; height: 24px; border-radius: 50%; flex-shrink: 0; font-size: 16px; line-height: 1; color: var(--texte-2); }
-    .fleche:hover { background: var(--app); color: var(--noir); }
     .lien { font-size: 12px; color: var(--texte-2); font-weight: 500; padding: 4px 8px; flex-shrink: 0; }
     .lien:hover { color: var(--noir); }
 
@@ -81,21 +78,17 @@
     .natures { flex-direction: column; flex-wrap: nowrap; gap: 4px; }
     .natures .pilule { padding: 4px 11px; font-size: 11px; text-align: left; }
     .natures .pilule i { width: 7px; height: 7px; border-radius: 50%; display: inline-block; margin-right: 5px; }
-    .barres { flex: 1; min-width: 0; display: flex; gap: 8px; overflow-x: auto; scroll-behavior: smooth; scrollbar-width: none; padding: 2px; }
-    .barres::-webkit-scrollbar { display: none; }
-    .barre { flex: 0 0 150px; text-align: left; padding: 7px 9px; border-radius: 12px; border: 1px solid transparent; transition: all .15s; }
-    .barre:hover { background: var(--app); }
-    .barre.actif { background: var(--vert-clair); border-color: var(--vert); }
-    .barre.actif .remplissage { background-color: var(--vert) !important; }
-    .barre.impossible { opacity: .3; }
-    .barre-tete { display: flex; justify-content: space-between; gap: 4px; font-size: 11.5px; font-weight: 500; margin-bottom: 5px; white-space: nowrap; }
-    .barre-tete span:first-child { overflow: hidden; text-overflow: ellipsis; }
-    .barre-tete span:last-child { color: var(--texte-3); }
-    .barre.actif .barre-tete span:first-child { color: var(--vert); font-weight: 700; }
-    .barre.actif .barre-tete span:first-child::after { content: ' ✓'; }
-    .piste { height: 8px; border-radius: 999px; background: repeating-linear-gradient(135deg, #eceef1 0 4px, #f6f7f8 4px 8px); overflow: hidden; }
-    .remplissage { height: 100%; border-radius: 999px; transition: width .4s ease;
-                   background-image: repeating-linear-gradient(135deg, rgba(255,255,255,.18) 0 4px, transparent 4px 8px); }
+    .stats { align-items: flex-start; }
+    .puces { flex: 1; min-width: 0; display: flex; flex-wrap: wrap; gap: 6px; padding: 2px 0; }
+    .puce { display: inline-flex; align-items: center; gap: 6px; padding: 4px 5px 4px 4px; border-radius: 999px; font-size: 12px;
+            font-weight: 500; background: #f3f4f6; color: #5f636a; border: 1px solid transparent; transition: all .15s; white-space: nowrap; }
+    .puce .ico { width: 22px; height: 22px; border-radius: 50%; background: #fff; display: grid; place-items: center; font-size: 13px; }
+    .puce .nb { min-width: 20px; height: 20px; padding: 0 6px; border-radius: 999px; background: #fff; color: var(--texte-2);
+                font-size: 10.5px; font-weight: 700; display: grid; place-items: center; }
+    .puce:hover { border-color: #cfd2d6; color: var(--texte); }
+    .puce.actif { background: var(--vert); color: #fff; }
+    .puce.actif .nb { color: var(--vert); }
+    .puce.impossible { opacity: .35; }
 
     .resultats { min-height: calc(100vh - 150px); }
 
@@ -172,7 +165,7 @@
       .bande { flex-wrap: wrap; border-radius: 18px; }
       .bande > .pilules { flex-wrap: wrap; }
       .bande .separateur, .bande .compte-mini { display: none; }
-      .bande .defile { flex: 1 1 100%; }
+      .bande .puces { flex: 1 1 100%; }
       .stats .donut { display: none; }
       .natures { flex-direction: row; }
       .resultats { min-height: 0; }
@@ -215,17 +208,13 @@
         <button class="btn btn-noir" onclick="ouvrirFormulaire()">＋ Nouveau</button>
       </header>
 
-      <!-- Bande unique : catégories + tous les ingrédients (barres cliquables, liste dynamique) -->
+      <!-- Bande unique : catégories + tous les ingrédients (liste dynamique, retour à la ligne) -->
       <section class="panneau bande stats">
         <svg class="donut" id="donut" viewBox="0 0 42 42"></svg>
         <div class="pilules natures" id="natures"></div>
         <span class="separateur"></span>
         <span class="compte-mini" title="Nombre d'ingrédients"><b id="nbIngr">0</b></span>
-        <div class="defile">
-          <button class="fleche" onclick="defiler(-1)" aria-label="Précédent">‹</button>
-          <div class="barres" id="barres"></div>
-          <button class="fleche" onclick="defiler(1)" aria-label="Suivant">›</button>
-        </div>
+        <div class="puces" id="puces"></div>
         <button class="lien" id="effacerIngr" onclick="effacerIngredients()" hidden>Effacer</button>
       </section>
 
@@ -466,12 +455,6 @@
       afficher();
     }
 
-    // Fait défiler la ligne d'ingrédients avec les flèches ‹ ›
-    function defiler(sens) {
-      const p = document.getElementById('barres');
-      p.scrollBy({ left: sens * p.clientWidth * 0.8 });
-    }
-
     function effacerIngredients() { choisis.clear(); afficher(); }
 
     function toutEffacer() {
@@ -525,24 +508,17 @@
       document.getElementById('donut').innerHTML = svg;
     }
 
-    const COULEURS_BARRES = ['#8b2fc9', '#ef4444', '#2d9cdb', '#f7931e', '#f5b301', '#f2547d'];
-
-    // Tous les ingrédients de la feuille en barres cliquables (la liste suit automatiquement les ajouts)
-    function afficherBarres(resultats, tous) {
-      const max = repas.length || 1;
+    // Tous les ingrédients de la feuille (la liste suit automatiquement les ajouts),
+    // avec un badge du nombre de repas qui les utilisent
+    function afficherIngredients(resultats, tous) {
       // Ingrédients présents dans au moins un des résultats actuels
       const possibles = new Set();
       resultats.forEach(r => ingredientsDe(r).forEach(c => possibles.add(c)));
-      // Les ingrédients choisis passent en tête de la ligne
-      const ordre = [...tous.filter(c => choisis.has(c)), ...tous.filter(c => !choisis.has(c))];
-      document.getElementById('barres').innerHTML = ordre.map((c, i) => {
+      document.getElementById('puces').innerHTML = tous.map(c => {
         const classe = choisis.has(c) ? 'actif' : possibles.has(c) ? '' : 'impossible';
         const libelle = [...libellesIngr[c]].join(' / ');
-        return `
-        <button class="barre ${classe}" onclick="basculer('${esc(c)}')" title="${esc(libelle)} : ${compteIngr[c]} repas">
-          <div class="barre-tete"><span>${icone(c)} ${esc(libelle)}</span><span>${compteIngr[c]}/${max}</span></div>
-          <div class="piste"><div class="remplissage" style="width:${compteIngr[c] / max * 100}%;background-color:${COULEURS_BARRES[tous.indexOf(c) % COULEURS_BARRES.length]}"></div></div>
-        </button>`;
+        return `<button class="puce ${classe}" onclick="basculer('${esc(c)}')" title="${esc(libelle)} : ${compteIngr[c]} repas">
+                  <span class="ico">${icone(c)}</span>${esc(libelle)}<span class="nb">${compteIngr[c]}</span></button>`;
       }).join('') || '<span class="aide">Aucun ingrédient pour l’instant.</span>';
       document.getElementById('nbIngr').textContent = tous.length;
       document.getElementById('effacerIngr').hidden = !choisis.size;
@@ -563,7 +539,7 @@
       const { termes, liste } = filtrer();
       afficherNatures(natures, compte);
       afficherDonut(natures, compte);
-      afficherBarres(liste, tous);
+      afficherIngredients(liste, tous);
 
       const filtre = termes.length || choisis.size || natureChoisie;
       document.getElementById('titreRes').textContent = filtre ? 'Résultats' : 'Tous les repas';
