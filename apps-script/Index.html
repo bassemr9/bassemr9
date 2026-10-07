@@ -1,0 +1,230 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <base target="_top">
+  <meta charset="utf-8">
+  <style>
+    * { box-sizing: border-box; }
+    body { font-family: Arial, sans-serif; margin: 0; padding: 12px; background: #f6f7fb; color: #222; }
+    h1 { font-size: 20px; margin: 0 0 12px; }
+    .barre { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 12px; }
+    input, select, textarea, button { font: inherit; padding: 8px 10px; border: 1px solid #ccd; border-radius: 6px; }
+    #recherche { flex: 1 1 220px; }
+    button { cursor: pointer; background: #fff; }
+    button.principal { background: #1a73e8; color: #fff; border-color: #1a73e8; }
+    button.danger { background: #d93025; color: #fff; border-color: #d93025; }
+    .info { font-size: 13px; color: #666; margin-bottom: 8px; }
+    .grille { display: grid; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); gap: 10px; }
+    .carte { background: #fff; border-radius: 8px; padding: 12px; box-shadow: 0 1px 3px rgba(0,0,0,.12); cursor: pointer; }
+    .carte:hover { box-shadow: 0 2px 8px rgba(0,0,0,.2); }
+    .carte h3 { margin: 4px 0 8px; font-size: 16px; }
+    .badge { display: inline-block; font-size: 11px; padding: 2px 8px; border-radius: 10px; background: #e8f0fe; color: #1a73e8; margin-right: 6px; }
+    .code { font-size: 11px; color: #888; }
+    .ingr { display: flex; flex-wrap: wrap; gap: 4px; }
+    .ingr span { font-size: 12px; background: #fdecea; color: #a50e0e; padding: 2px 8px; border-radius: 10px; }
+    .ingr.fac span { background: #e6f4ea; color: #137333; }
+    mark { background: #ffe58a; }
+    .fond { position: fixed; inset: 0; background: rgba(0,0,0,.4); display: none; align-items: center; justify-content: center; padding: 12px; }
+    .fond.ouvert { display: flex; }
+    .fenetre { background: #fff; border-radius: 10px; padding: 18px; width: 100%; max-width: 560px; max-height: 95vh; overflow: auto; }
+    .fenetre h2 { margin-top: 0; }
+    .fenetre label { display: block; font-size: 13px; font-weight: bold; margin: 10px 0 4px; }
+    .fenetre input, .fenetre select, .fenetre textarea { width: 100%; }
+    .actions { display: flex; gap: 8px; justify-content: flex-end; margin-top: 16px; flex-wrap: wrap; }
+    .detail p { margin: 6px 0; }
+    .aide { font-size: 12px; color: #666; }
+    #message { position: fixed; bottom: 12px; left: 50%; transform: translateX(-50%); background: #323232; color: #fff; padding: 10px 16px; border-radius: 6px; display: none; }
+  </style>
+</head>
+<body>
+  <h1>🍽️ Gestionnaire de repas</h1>
+
+  <div class="barre">
+    <input id="recherche" placeholder="Rechercher un repas ou un ingrédient (ex : pizza, poulet, thon...)" oninput="afficher()">
+    <select id="filtreNature" onchange="afficher()"><option value="">Toutes les natures</option></select>
+    <select id="mode" onchange="afficher()">
+      <option value="tout">Nom + ingrédients</option>
+      <option value="nom">Nom uniquement</option>
+      <option value="ingr">Ingrédients uniquement</option>
+    </select>
+    <button class="principal" onclick="ouvrirFormulaire()">+ Ajouter</button>
+    <button onclick="aleatoire()">🎲 Idée au hasard</button>
+  </div>
+
+  <div class="info" id="info">Chargement…</div>
+  <div class="grille" id="liste"></div>
+
+  <!-- Détail -->
+  <div class="fond" id="fondDetail" onclick="if(event.target===this)fermer('fondDetail')">
+    <div class="fenetre detail" id="detail"></div>
+  </div>
+
+  <!-- Formulaire -->
+  <div class="fond" id="fondForm" onclick="if(event.target===this)fermer('fondForm')">
+    <div class="fenetre">
+      <h2 id="titreForm">Nouveau repas</h2>
+      <input type="hidden" id="f_code">
+      <label>Nom du repas *</label>
+      <input id="f_libelle">
+      <label>Nature</label>
+      <input id="f_nature" list="natures" placeholder="REPAS, FAST FOOD…">
+      <datalist id="natures"></datalist>
+      <label>Ingrédients principaux</label>
+      <textarea id="f_principal" rows="2"></textarea>
+      <div class="aide">Séparer par « / » ou « - » (ex : TOMATE / OIGNON / POULET)</div>
+      <label>Ingrédients facultatifs</label>
+      <textarea id="f_facultatif" rows="2"></textarea>
+      <label>Astuce</label>
+      <textarea id="f_astuce" rows="2"></textarea>
+      <label>Remarque</label>
+      <textarea id="f_remarque" rows="2"></textarea>
+      <div class="actions">
+        <button onclick="fermer('fondForm')">Annuler</button>
+        <button class="principal" id="btnEnregistrer" onclick="enregistrer()">Enregistrer</button>
+      </div>
+    </div>
+  </div>
+
+  <div id="message"></div>
+
+  <script>
+    let repas = [];
+
+    function charger() {
+      google.script.run.withSuccessHandler(maj).withFailureHandler(erreur).getRepas();
+    }
+
+    function maj(liste) {
+      repas = liste || [];
+      const natures = [...new Set(repas.map(r => r.nature).filter(Boolean))].sort();
+      const sel = document.getElementById('filtreNature');
+      const actuel = sel.value;
+      sel.innerHTML = '<option value="">Toutes les natures</option>' +
+        natures.map(n => `<option ${n === actuel ? 'selected' : ''}>${esc(n)}</option>`).join('');
+      document.getElementById('natures').innerHTML = natures.map(n => `<option value="${esc(n)}">`).join('');
+      afficher();
+    }
+
+    // Supprime accents et met en minuscules pour une recherche tolérante
+    function norm(s) {
+      return String(s || '').normalize('NFD').replace(/[̀-ͯ]/g, '').toLowerCase();
+    }
+
+    function esc(s) {
+      return String(s || '').replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+    }
+
+    function decouper(s) {
+      return String(s || '').split(/\s*[\/\-,;]\s*/).map(x => x.trim()).filter(Boolean);
+    }
+
+    function surligner(texte, termes) {
+      let h = esc(texte);
+      termes.forEach(t => {
+        if (!t) return;
+        const re = new RegExp('(' + t.replace(/[.*+?^${}()|[\]\\]/g, '\\$&') + ')', 'gi');
+        h = h.replace(re, '<mark>$1</mark>');
+      });
+      return h;
+    }
+
+    function filtrer() {
+      const termes = norm(document.getElementById('recherche').value).split(/\s+/).filter(Boolean);
+      const nature = document.getElementById('filtreNature').value;
+      const mode = document.getElementById('mode').value;
+      return {
+        termes,
+        liste: repas.filter(r => {
+          if (nature && r.nature !== nature) return false;
+          const nom = norm(r.libelle + ' ' + r.code);
+          const ingr = norm(r.principal + ' ' + r.facultatif);
+          const cible = mode === 'nom' ? nom : mode === 'ingr' ? ingr : nom + ' ' + ingr + ' ' + norm(r.astuce + ' ' + r.remarque);
+          return termes.every(t => cible.includes(t));
+        })
+      };
+    }
+
+    function afficher() {
+      const { termes, liste } = filtrer();
+      document.getElementById('info').textContent = `${liste.length} repas trouvé(s) sur ${repas.length}`;
+      document.getElementById('liste').innerHTML = liste.map(r => `
+        <div class="carte" onclick="voir('${esc(r.code)}')">
+          <span class="badge">${esc(r.nature || '—')}</span><span class="code">${esc(r.code)}</span>
+          <h3>${surligner(r.libelle, termes)}</h3>
+          <div class="ingr">${decouper(r.principal).map(i => `<span>${surligner(i, termes)}</span>`).join('')}</div>
+          ${r.facultatif ? `<div class="ingr fac" style="margin-top:4px">${decouper(r.facultatif).map(i => `<span>${surligner(i, termes)}</span>`).join('')}</div>` : ''}
+        </div>`).join('') || '<p>Aucun repas ne correspond à la recherche.</p>';
+    }
+
+    function voir(code) {
+      const r = repas.find(x => x.code === code);
+      if (!r) return;
+      document.getElementById('detail').innerHTML = `
+        <span class="badge">${esc(r.nature || '—')}</span><span class="code">${esc(r.code)}</span>
+        <h2>${esc(r.libelle)}</h2>
+        <p><b>Ingrédients principaux :</b></p>
+        <div class="ingr">${decouper(r.principal).map(i => `<span>${esc(i)}</span>`).join('') || '—'}</div>
+        <p><b>Ingrédients facultatifs :</b></p>
+        <div class="ingr fac">${decouper(r.facultatif).map(i => `<span>${esc(i)}</span>`).join('') || '—'}</div>
+        <p><b>💡 Astuce :</b> ${esc(r.astuce) || '—'}</p>
+        <p><b>📝 Remarque :</b> ${esc(r.remarque) || '—'}</p>
+        <div class="actions">
+          <button class="danger" onclick="supprimer('${esc(r.code)}')">Supprimer</button>
+          <button onclick="fermer('fondDetail')">Fermer</button>
+          <button class="principal" onclick="fermer('fondDetail');ouvrirFormulaire('${esc(r.code)}')">Modifier</button>
+        </div>`;
+      document.getElementById('fondDetail').classList.add('ouvert');
+    }
+
+    function ouvrirFormulaire(code) {
+      const r = repas.find(x => x.code === code) || {};
+      document.getElementById('titreForm').textContent = code ? 'Modifier ' + code : 'Nouveau repas';
+      ['code', 'libelle', 'nature', 'principal', 'facultatif', 'astuce', 'remarque']
+        .forEach(c => document.getElementById('f_' + c).value = r[c] || '');
+      document.getElementById('fondForm').classList.add('ouvert');
+      document.getElementById('f_libelle').focus();
+    }
+
+    function enregistrer() {
+      const data = {};
+      ['code', 'libelle', 'nature', 'principal', 'facultatif', 'astuce', 'remarque']
+        .forEach(c => data[c] = document.getElementById('f_' + c).value);
+      if (!data.libelle.trim()) { toast('Le nom du repas est obligatoire.'); return; }
+      const btn = document.getElementById('btnEnregistrer');
+      btn.disabled = true;
+      google.script.run
+        .withSuccessHandler(l => { btn.disabled = false; fermer('fondForm'); maj(l); toast('Repas enregistré ✔'); })
+        .withFailureHandler(e => { btn.disabled = false; erreur(e); })
+        .enregistrerRepas(data);
+    }
+
+    function supprimer(code) {
+      if (!confirm('Supprimer le repas ' + code + ' ?')) return;
+      google.script.run
+        .withSuccessHandler(l => { fermer('fondDetail'); maj(l); toast('Repas supprimé'); })
+        .withFailureHandler(erreur)
+        .supprimerRepas(code);
+    }
+
+    function aleatoire() {
+      const { liste } = filtrer();
+      if (!liste.length) { toast('Aucun repas disponible.'); return; }
+      voir(liste[Math.floor(Math.random() * liste.length)].code);
+    }
+
+    function fermer(id) { document.getElementById(id).classList.remove('ouvert'); }
+
+    function toast(t) {
+      const m = document.getElementById('message');
+      m.textContent = t; m.style.display = 'block';
+      clearTimeout(m._t); m._t = setTimeout(() => m.style.display = 'none', 2500);
+    }
+
+    function erreur(e) { toast('Erreur : ' + (e && e.message ? e.message : e)); }
+
+    document.addEventListener('keydown', e => { if (e.key === 'Escape') { fermer('fondDetail'); fermer('fondForm'); } });
+
+    charger();
+  </script>
+</body>
+</html>
