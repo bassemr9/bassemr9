@@ -6,6 +6,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <script src="https://cdn.jsdelivr.net/npm/@twemoji/api@15.1.0/dist/twemoji.min.js" crossorigin="anonymous"></script>
   <style>
     :root {
       --violet: #6c5ce7; --violet-2: #8b7cf8; --rose: #fd79a8; --orange: #ffa94d;
@@ -25,16 +26,30 @@
     }
     button, input, select, textarea { font: inherit; color: inherit; }
     button { cursor: pointer; border: 0; background: none; }
-    .page { max-width: 1180px; margin: 0 auto; padding: 20px 20px 60px; }
+    .page { max-width: 1400px; margin: 0 auto; padding: 14px 16px 40px; }
+    .espace { flex: 1; }
+    [hidden] { display: none !important; }
+    img.tw { width: 1.15em; height: 1.15em; vertical-align: -0.2em; }
 
-    /* ---------- Barre du haut ---------- */
-    .topbar { display: flex; align-items: center; gap: 14px; margin-bottom: 22px; flex-wrap: wrap; }
-    .logo { width: 46px; height: 46px; border-radius: 14px; display: grid; place-items: center; font-size: 24px;
-            background: linear-gradient(135deg, var(--violet), var(--rose)); box-shadow: 0 8px 20px rgba(108,92,231,.35); }
-    .marque h1 { margin: 0; font-size: 20px; font-weight: 800; letter-spacing: -.02em; }
-    .marque p { margin: 2px 0 0; font-size: 13px; color: var(--texte-2); }
-    .topbar .espace { flex: 1; }
-    .btn { display: inline-flex; align-items: center; gap: 8px; padding: 11px 18px; border-radius: 12px;
+    /* ---------- Barre de menu ---------- */
+    .navbar { position: sticky; top: 0; z-index: 5; background: rgba(255,255,255,.85); backdrop-filter: blur(12px);
+              border-bottom: 1px solid var(--bord); box-shadow: 0 1px 10px rgba(108,92,231,.06); }
+    .navbar-int { max-width: 1400px; margin: 0 auto; padding: 10px 16px; display: flex; align-items: center; gap: 12px; }
+    .marque { display: flex; align-items: center; gap: 10px; flex-shrink: 0; }
+    .logo { width: 36px; height: 36px; border-radius: 10px; display: grid; place-items: center; font-size: 19px;
+            background: linear-gradient(135deg, var(--violet), var(--rose)); box-shadow: 0 4px 12px rgba(108,92,231,.35); }
+    .marque h1 { margin: 0; font-size: 17px; font-weight: 800; letter-spacing: -.02em;
+                 background: linear-gradient(135deg, var(--violet), var(--rose)); -webkit-background-clip: text; background-clip: text; color: transparent; }
+    .navbar .champ { flex: 1; position: relative; min-width: 0; }
+    .navbar .champ svg { position: absolute; left: 13px; top: 50%; transform: translateY(-50%); color: var(--texte-3); }
+    .navbar .champ input { width: 100%; padding: 9px 12px 9px 38px; border-radius: 10px; border: 1.5px solid var(--bord);
+                           background: #f8f7fd; outline: none; font-size: 14px; transition: all .15s; }
+    .navbar .champ input:focus { border-color: var(--violet-2); background: #fff; box-shadow: 0 0 0 4px rgba(108,92,231,.12); }
+    .navbar .segment { display: inline-flex; background: #f1f0fb; border-radius: 10px; padding: 3px; flex-shrink: 0; }
+    .navbar .segment button { padding: 6px 11px; border-radius: 8px; font-weight: 600; font-size: 12px; color: var(--texte-2); }
+    .navbar .segment button.actif { background: #fff; color: var(--violet); box-shadow: 0 2px 6px rgba(30,27,75,.1); }
+    .navbar .btn { padding: 9px 14px; font-size: 13px; }
+    .btn { display: inline-flex; align-items: center; gap: 6px; padding: 11px 18px; border-radius: 12px;
            font-weight: 700; font-size: 14px; transition: transform .15s, box-shadow .15s, background .15s; white-space: nowrap; }
     .btn:hover { transform: translateY(-1px); }
     .btn:active { transform: translateY(0); }
@@ -46,50 +61,32 @@
     .btn-doux { background: #f1f0fb; color: var(--texte); }
     .btn[disabled] { opacity: .6; pointer-events: none; }
 
-    /* ---------- Bandeau de recherche ---------- */
-    .hero { position: relative; overflow: hidden; border-radius: 26px; padding: 30px 28px 26px; color: #fff;
-            background: linear-gradient(120deg, #6c5ce7 0%, #a855f7 45%, #ec4899 80%, #fb923c 100%);
-            box-shadow: 0 20px 40px rgba(108,92,231,.25); margin-bottom: 20px; }
-    .hero::before, .hero::after { content: ''; position: absolute; border-radius: 50%; background: rgba(255,255,255,.12); }
-    .hero::before { width: 260px; height: 260px; right: -60px; top: -110px; }
-    .hero::after { width: 160px; height: 160px; right: 140px; bottom: -90px; }
-    .hero h2 { position: relative; margin: 0 0 4px; font-size: 26px; font-weight: 800; letter-spacing: -.02em; }
-    .hero p { position: relative; margin: 0 0 18px; opacity: .9; }
-    .hero .deco { position: absolute; right: 26px; top: 18px; font-size: 54px; opacity: .9; transform: rotate(12deg); }
-    .recherche { position: relative; display: flex; gap: 10px; flex-wrap: wrap; }
-    .champ { flex: 1 1 280px; position: relative; }
-    .champ svg { position: absolute; left: 16px; top: 50%; transform: translateY(-50%); color: var(--texte-3); }
-    .champ input { width: 100%; padding: 15px 16px 15px 46px; border: 0; border-radius: 14px; font-size: 15px;
-                   background: #fff; box-shadow: 0 8px 20px rgba(30,27,75,.15); outline: none; }
-    .champ input:focus { box-shadow: 0 0 0 4px rgba(255,255,255,.4), 0 8px 20px rgba(30,27,75,.15); }
-    .segment { display: inline-flex; background: rgba(255,255,255,.2); border-radius: 14px; padding: 4px; backdrop-filter: blur(6px); }
-    .segment button { padding: 10px 14px; border-radius: 10px; color: #fff; font-weight: 600; font-size: 13px; }
-    .segment button.actif { background: #fff; color: var(--violet); box-shadow: 0 4px 10px rgba(30,27,75,.15); }
+    /* ---------- Filtres compacts ---------- */
+    .filtres { background: var(--carte); border-radius: 14px; padding: 10px 14px 6px; box-shadow: var(--ombre);
+               border: 1px solid var(--bord); margin-bottom: 14px; }
+    .filtres .ligne { display: flex; gap: 12px; align-items: flex-start; padding: 4px 0; }
+    .libelle-ligne { flex: 0 0 96px; font-size: 11px; font-weight: 800; text-transform: uppercase; letter-spacing: .05em;
+                     color: var(--texte-3); padding-top: 8px; }
+    .libelle-ligne .compteur { display: inline-block; margin-top: 4px; text-transform: none; letter-spacing: 0; }
+    .filtres .natures, .filtres .puces { flex: 1; min-width: 0; }
+    .filtres .nature { padding: 6px 12px; font-size: 12px; }
+    .filtres .puce { padding: 4px 11px 4px 4px; font-size: 12px; gap: 5px; }
+    .filtres .puce .ico { width: 22px; height: 22px; font-size: 13px; }
+    .puces.replie { max-height: 68px; overflow: hidden; }
+    .filtres-pied { display: flex; align-items: center; border-top: 1px dashed var(--bord); margin-top: 4px; padding-top: 2px; }
+    .filtres-pied .lien { font-size: 12px; padding: 5px 8px; }
 
-    /* ---------- Statistiques ---------- */
-    .stats { display: grid; grid-template-columns: repeat(4, 1fr); gap: 14px; margin-bottom: 20px; }
-    .stat { background: var(--carte); border-radius: var(--rayon); padding: 16px; display: flex; align-items: center; gap: 14px;
-            box-shadow: var(--ombre); border: 1px solid var(--bord); }
-    .stat .bulle { width: 44px; height: 44px; border-radius: 12px; display: grid; place-items: center; font-size: 22px; flex-shrink: 0; }
-    .stat b { display: block; font-size: 22px; font-weight: 800; line-height: 1; }
-    .stat span { font-size: 12px; color: var(--texte-2); font-weight: 600; }
-
-    /* ---------- Panneaux de filtres ---------- */
-    .panneau { background: var(--carte); border-radius: var(--rayon); padding: 18px; box-shadow: var(--ombre);
-               border: 1px solid var(--bord); margin-bottom: 20px; }
-    .panneau-tete { display: flex; align-items: center; justify-content: space-between; gap: 10px; margin-bottom: 14px; }
-    .panneau-tete h3 { margin: 0; font-size: 15px; font-weight: 800; display: flex; align-items: center; gap: 8px; }
-    .compteur { font-size: 11px; font-weight: 700; padding: 3px 9px; border-radius: 999px; background: #ede9fe; color: var(--violet); }
-    .lien { font-size: 13px; font-weight: 700; color: var(--violet); padding: 6px 10px; border-radius: 8px; }
+    .compteur { font-size: 11px; font-weight: 700; padding: 2px 8px; border-radius: 999px; background: #d1fae5; color: var(--vert-fonce); }
+    .lien { font-weight: 700; color: var(--violet); border-radius: 8px; }
     .lien:hover { background: #f1f0fb; }
-    .natures { display: flex; gap: 8px; flex-wrap: wrap; }
+    .natures { display: flex; gap: 6px; flex-wrap: wrap; }
     .nature { padding: 9px 16px; border-radius: 999px; font-weight: 700; font-size: 13px; background: #f4f3fb; color: var(--texte-2);
               border: 1.5px solid transparent; transition: all .15s; }
     .nature:hover { border-color: #d9d4fb; }
     .nature.actif { background: var(--texte); color: #fff; }
     .nature small { opacity: .6; margin-left: 4px; }
 
-    .puces { display: flex; flex-wrap: wrap; gap: 8px; }
+    .puces { display: flex; flex-wrap: wrap; gap: 6px; }
     .puce { display: inline-flex; align-items: center; gap: 7px; padding: 8px 14px 8px 8px; border-radius: 999px;
             background: #f4f4f6; color: #8a8fa3; font-size: 13px; font-weight: 600; border: 1.5px solid #ececf1; transition: all .18s; }
     .puce .ico { width: 28px; height: 28px; border-radius: 50%; display: grid; place-items: center; font-size: 16px;
@@ -104,24 +101,27 @@
     .puce.impossible:hover { transform: none; }
 
     /* ---------- Résultats ---------- */
-    .resultats-tete { display: flex; align-items: baseline; justify-content: space-between; margin: 6px 4px 14px; gap: 10px; flex-wrap: wrap; }
-    .resultats-tete h3 { margin: 0; font-size: 18px; font-weight: 800; }
-    .resultats-tete span { color: var(--texte-2); font-size: 13px; }
-    .grille { display: grid; grid-template-columns: repeat(auto-fill, minmax(270px, 1fr)); gap: 18px; }
-    .carte { background: var(--carte); border-radius: 20px; overflow: hidden; box-shadow: var(--ombre); border: 1px solid var(--bord);
+    .resultats-tete { display: flex; align-items: baseline; justify-content: space-between; margin: 4px 2px 10px; gap: 10px; flex-wrap: wrap; }
+    .resultats-tete h3 { margin: 0; font-size: 15px; font-weight: 800; }
+    .resultats-tete span { color: var(--texte-2); font-size: 12px; }
+    .grille { display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 12px; }
+    .carte { background: var(--carte); border-radius: 14px; overflow: hidden; box-shadow: var(--ombre); border: 1px solid var(--bord);
              cursor: pointer; transition: transform .2s, box-shadow .2s; display: flex; flex-direction: column;
              animation: apparait .35s ease both; }
     .carte:hover { transform: translateY(-4px); box-shadow: var(--ombre-fort); }
     @keyframes apparait { from { opacity: 0; transform: translateY(8px); } }
-    .carte-visuel { height: 108px; position: relative; display: grid; place-items: center; }
-    .carte-visuel .emoji { font-size: 54px; filter: drop-shadow(0 8px 12px rgba(0,0,0,.18)); transition: transform .25s; }
+    .carte-visuel { height: 62px; position: relative; display: grid; place-items: center; }
+    .carte-visuel .emoji { font-size: 34px; filter: drop-shadow(0 6px 8px rgba(0,0,0,.18)); transition: transform .25s; }
     .carte:hover .emoji { transform: scale(1.12) rotate(-6deg); }
-    .etiquette { position: absolute; top: 12px; left: 12px; padding: 4px 10px; border-radius: 999px; font-size: 11px; font-weight: 800;
+    .etiquette { position: absolute; top: 8px; left: 8px; padding: 3px 8px; border-radius: 999px; font-size: 10px; font-weight: 800;
                  background: rgba(255,255,255,.9); letter-spacing: .03em; }
-    .code { position: absolute; top: 12px; right: 12px; font-size: 11px; font-weight: 700; color: rgba(255,255,255,.95);
-            background: rgba(0,0,0,.15); padding: 4px 8px; border-radius: 8px; }
-    .carte-corps { padding: 14px 16px 16px; display: flex; flex-direction: column; gap: 10px; flex: 1; }
-    .carte-corps h4 { margin: 0; font-size: 16px; font-weight: 800; letter-spacing: -.01em; }
+    .code { position: absolute; top: 8px; right: 8px; font-size: 10px; font-weight: 700; color: rgba(255,255,255,.95);
+            background: rgba(0,0,0,.15); padding: 3px 6px; border-radius: 6px; }
+    .carte-corps { padding: 10px 12px 12px; display: flex; flex-direction: column; gap: 7px; flex: 1; }
+    .carte-corps h4 { margin: 0; font-size: 14px; font-weight: 800; letter-spacing: -.01em; }
+    .carte .ingr { gap: 4px; }
+    .carte .ingr span { font-size: 11px; padding: 2px 7px; }
+    .carte .astuce { font-size: 11px; padding: 5px 8px; }
     .ingr { display: flex; flex-wrap: wrap; gap: 6px; }
     .ingr span { font-size: 12px; font-weight: 600; padding: 4px 9px; border-radius: 8px; background: #f5f5fa; color: #525a72; }
     .ingr span.choisi { background: #d1fae5; color: var(--vert-fonce); }
@@ -167,64 +167,53 @@
                transform: translateY(120px); opacity: 0; transition: all .3s cubic-bezier(.2,.9,.3,1.2); }
     #message.visible { transform: none; opacity: 1; }
 
+    @media (max-width: 1000px) { .navbar .btn .txt { display: none; } }
     @media (max-width: 760px) {
-      .stats { grid-template-columns: repeat(2, 1fr); }
-      .hero { padding: 24px 18px 20px; }
-      .hero .deco { display: none; }
-      .topbar .btn span.txt { display: none; }
+      .navbar-int { flex-wrap: wrap; gap: 8px; }
+      .marque h1 { display: none; }
+      .navbar .champ { order: 5; flex-basis: 100%; }
+      .navbar .segment { margin-right: auto; }
+      .filtres .ligne { flex-direction: column; gap: 4px; }
+      .libelle-ligne { flex: none; padding-top: 0; }
+      .grille { grid-template-columns: repeat(auto-fill, minmax(155px, 1fr)); gap: 10px; }
       .form .deux { grid-template-columns: 1fr; }
     }
   </style>
 </head>
 <body>
+  <nav class="navbar">
+    <div class="navbar-int">
+      <div class="marque"><div class="logo">🍽️</div><h1>Idée Repas</h1></div>
+      <div class="champ">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg>
+        <input id="recherche" placeholder="Rechercher un plat ou un ingrédient…" oninput="afficher()" autocomplete="off">
+      </div>
+      <div class="segment" id="mode">
+        <button data-mode="tout" class="actif" onclick="choisirMode('tout')">Tout</button>
+        <button data-mode="nom" onclick="choisirMode('nom')">Nom</button>
+        <button data-mode="ingr" onclick="choisirMode('ingr')">Ingrédients</button>
+      </div>
+      <button class="btn btn-blanc" onclick="aleatoire()" title="Idée au hasard">🎲<span class="txt"> Surprends-moi</span></button>
+      <button class="btn btn-primaire" onclick="ouvrirFormulaire()" title="Nouveau repas">＋<span class="txt"> Nouveau</span></button>
+    </div>
+  </nav>
+
   <div class="page">
 
-    <header class="topbar">
-      <div class="logo">🍽️</div>
-      <div class="marque">
-        <h1>Idée Repas</h1>
-        <p>Votre carnet de recettes intelligent</p>
+    <section class="filtres">
+      <div class="ligne">
+        <span class="libelle-ligne">Catégorie</span>
+        <div class="natures" id="natures"></div>
       </div>
-      <div class="espace"></div>
-      <button class="btn btn-blanc" onclick="aleatoire()">🎲 <span class="txt">Surprends-moi</span></button>
-      <button class="btn btn-primaire" onclick="ouvrirFormulaire()">＋ <span class="txt">Nouveau repas</span></button>
-    </header>
-
-    <section class="hero">
-      <div class="deco">🥘</div>
-      <h2 id="salut">Bonjour 👋</h2>
-      <p>Qu’est-ce qu’on mange aujourd’hui ? Cherchez un plat ou choisissez vos ingrédients.</p>
-      <div class="recherche">
-        <div class="champ">
-          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg>
-          <input id="recherche" placeholder="Pizza, poulet, thon…" oninput="afficher()" autocomplete="off">
-        </div>
-        <div class="segment" id="mode">
-          <button data-mode="tout" class="actif" onclick="choisirMode('tout')">Tout</button>
-          <button data-mode="nom" onclick="choisirMode('nom')">Nom</button>
-          <button data-mode="ingr" onclick="choisirMode('ingr')">Ingrédients</button>
-        </div>
+      <div class="ligne">
+        <span class="libelle-ligne">Ingrédients <span class="compteur" id="nbChoisis" hidden></span></span>
+        <div class="puces replie" id="puces"></div>
       </div>
-    </section>
-
-    <section class="stats">
-      <div class="stat"><div class="bulle" style="background:#ede9fe">🍲</div><div><b id="sRepas">0</b><span>Repas</span></div></div>
-      <div class="stat"><div class="bulle" style="background:#d1fae5">🥕</div><div><b id="sIngr">0</b><span>Ingrédients</span></div></div>
-      <div class="stat"><div class="bulle" style="background:#fce7f3">🏷️</div><div><b id="sNat">0</b><span>Catégories</span></div></div>
-      <div class="stat"><div class="bulle" style="background:#ffedd5">✨</div><div><b id="sRes">0</b><span>Résultats</span></div></div>
-    </section>
-
-    <section class="panneau">
-      <div class="panneau-tete"><h3>🏷️ Catégories</h3></div>
-      <div class="natures" id="natures"></div>
-    </section>
-
-    <section class="panneau">
-      <div class="panneau-tete">
-        <h3>🥕 Ingrédients <span class="compteur" id="nbChoisis" hidden></span></h3>
-        <button class="lien" onclick="toutEffacer()">Réinitialiser</button>
+      <div class="filtres-pied">
+        <button class="lien" id="btnPlus" onclick="basculerPlus()" hidden>Voir tous les ingrédients ▾</button>
+        <span class="espace"></span>
+        <button class="lien" onclick="toutEffacer()">↺ Réinitialiser</button>
       </div>
-      <div class="puces" id="puces"></div>
     </section>
 
     <div class="resultats-tete">
@@ -330,8 +319,7 @@
     }
 
     function charger() {
-      const h = new Date().getHours();
-      document.getElementById('salut').textContent = (h < 18 ? 'Bonjour' : 'Bonsoir') + ' 👋';
+      emojis(document.body);
       document.getElementById('liste').innerHTML = '<div class="vide"><div>⏳</div><b>Chargement des repas…</b></div>';
       serveur('getRepas', undefined, maj, erreur);
       if (DEMO) toast('Mode démo : vos vraies données s’affichent dans Google Sheets');
@@ -468,6 +456,9 @@
       afficher();
     }
 
+    // Ingrédients sans doublons de synonymes (OIGNON / BSAL -> OIGNON), pour des cartes compactes
+    function uniques(s) { return [...new Set(decouper(s).map(canon))]; }
+
     function puceIngr(i, termes) {
       const c = canon(i);
       return `<span class="${choisis.has(c) ? 'choisi' : ''}">${icone(c)} ${surligner(i, termes)}</span>`;
@@ -519,13 +510,8 @@
     function afficher() {
       const tous = construirePuces();
       const { termes, liste } = filtrer();
-      const nbNatures = afficherNatures();
+      afficherNatures();
       afficherPuces(liste, tous);
-
-      document.getElementById('sRepas').textContent = repas.length;
-      document.getElementById('sIngr').textContent = tous.length;
-      document.getElementById('sNat').textContent = nbNatures;
-      document.getElementById('sRes').textContent = liste.length;
 
       const filtre = termes.length || choisis.size || natureChoisie;
       document.getElementById('titreRes').textContent = filtre ? 'Résultats' : 'Tous les repas';
@@ -540,13 +526,35 @@
           </div>
           <div class="carte-corps">
             <h4>${surligner(r.libelle, termes)}</h4>
-            <div class="ingr">${decouper(r.principal).map(i => puceIngr(i, termes)).join('')}</div>
-            ${r.facultatif ? `<div class="ingr fac">${decouper(r.facultatif).map(i => puceIngr(i, termes)).join('')}</div>` : ''}
+            <div class="ingr">${uniques(r.principal).map(i => puceIngr(i, termes)).join('')}</div>
+            ${r.facultatif ? `<div class="ingr fac">${uniques(r.facultatif).map(i => puceIngr(i, termes)).join('')}</div>` : ''}
             ${r.astuce ? `<div class="astuce">💡 ${surligner(r.astuce, termes)}</div>` : ''}
           </div>
         </article>`).join('') ||
         `<div class="vide"><div>🔍</div><b>Aucun repas trouvé</b>Essayez de retirer un ingrédient ou une catégorie.
            <div style="font-size:inherit;margin-top:14px"><button class="btn btn-doux" onclick="toutEffacer()">Réinitialiser les filtres</button></div></div>`;
+      majPlus();
+      emojis(document.getElementById('natures'));
+      emojis(document.getElementById('puces'));
+      emojis(document.getElementById('liste'));
+    }
+
+    // Affiche « Voir tous les ingrédients » seulement si la liste dépasse 2 lignes
+    let plusOuvert = false;
+    function majPlus() {
+      const p = document.getElementById('puces'), b = document.getElementById('btnPlus');
+      p.classList.add('replie');
+      const deborde = p.scrollHeight > p.clientHeight + 2;
+      p.classList.toggle('replie', !plusOuvert);
+      b.hidden = !deborde;
+      b.textContent = plusOuvert ? 'Réduire ▴' : 'Voir tous les ingrédients ▾';
+    }
+    function basculerPlus() { plusOuvert = !plusOuvert; majPlus(); }
+    window.addEventListener('resize', majPlus);
+
+    // Remplace les emojis par des images Twemoji (identiques sur Windows, Mac et téléphone)
+    function emojis(el) {
+      if (window.twemoji && el) twemoji.parse(el, { folder: 'svg', ext: '.svg', className: 'tw' });
     }
 
     function voir(code) {
@@ -571,6 +579,7 @@
             <button class="btn btn-primaire" onclick="fermer('fondDetail');ouvrirFormulaire('${esc(r.code)}')">✏️ Modifier</button>
           </div>
         </div>`;
+      emojis(document.getElementById('detail'));
       document.getElementById('fondDetail').classList.add('ouvert');
     }
 
