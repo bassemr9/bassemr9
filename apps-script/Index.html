@@ -24,6 +24,17 @@
     .ingr span { font-size: 12px; background: #fdecea; color: #a50e0e; padding: 2px 8px; border-radius: 10px; }
     .ingr.fac span { background: #e6f4ea; color: #137333; }
     mark { background: #ffe58a; }
+    .filtres-ingr { background: #fff; border-radius: 8px; padding: 10px; margin-bottom: 12px; box-shadow: 0 1px 3px rgba(0,0,0,.12); }
+    .filtres-ingr .titre { display: flex; justify-content: space-between; align-items: center; font-size: 13px; font-weight: bold; margin-bottom: 8px; }
+    .filtres-ingr .titre button { padding: 4px 10px; font-size: 12px; }
+    .puces { display: flex; flex-wrap: wrap; gap: 6px; }
+    .puce { display: inline-flex; align-items: center; gap: 5px; padding: 6px 12px; border-radius: 20px; border: 1px solid #ddd;
+            background: #f1f3f4; color: #777; font-size: 13px; transition: all .15s; }
+    .puce .ico { font-size: 18px; filter: grayscale(70%); }
+    .puce:hover { border-color: #34a853; }
+    .puce.actif { background: #34a853; border-color: #2d8e47; color: #fff; font-weight: bold; }
+    .puce.actif .ico { filter: none; }
+    .puce.impossible { opacity: .35; }
     .fond { position: fixed; inset: 0; background: rgba(0,0,0,.4); display: none; align-items: center; justify-content: center; padding: 12px; }
     .fond.ouvert { display: flex; }
     .fenetre { background: #fff; border-radius: 10px; padding: 18px; width: 100%; max-width: 560px; max-height: 95vh; overflow: auto; }
@@ -49,6 +60,14 @@
     </select>
     <button class="principal" onclick="ouvrirFormulaire()">+ Ajouter</button>
     <button onclick="aleatoire()">🎲 Idée au hasard</button>
+  </div>
+
+  <div class="filtres-ingr">
+    <div class="titre">
+      <span>🥕 Choisir les ingrédients</span>
+      <button onclick="toutEffacer()">✖ Tout effacer</button>
+    </div>
+    <div class="puces" id="puces"></div>
   </div>
 
   <div class="info" id="info">Chargement…</div>
@@ -162,6 +181,75 @@
       return h;
     }
 
+    // ---------- Ingrédients : synonymes et icônes ----------
+
+    // Nom en dialecte -> nom de référence (ajoutez-en ici si besoin)
+    const SYNONYMES = { BSAL: 'OIGNON', FILFIL: 'POIVRON', DJEJ: 'POULET', HOUT: 'POISSON', ADHAM: 'OEUF', JBEN: 'FROMAGE', BATATA: 'POMME DE TERRE' };
+
+    // Le premier motif qui correspond donne l'icône (l'ordre compte)
+    const ICONES = [
+      [/tomate concentr/, '🥫'], [/tomate/, '🍅'], [/oignon/, '🧅'], [/\bail\b/, '🧄'],
+      [/poivron/, '🫑'], [/piment|harissa|hrous/, '🌶️'], [/poulet|dinde/, '🍗'],
+      [/poisson|thon|sardine|merou|dorade/, '🐟'], [/crevette|fruits de mer|calamar/, '🦐'],
+      [/burger/, '🍔'], [/steak|viande|boeuf|agneau|mouton|kefta|merguez/, '🥩'],
+      [/oeuf/, '🥚'], [/fromage|mozzarella|gruyere/, '🧀'], [/pomme de terre|patate|frite/, '🥔'],
+      [/carotte/, '🥕'], [/pain|baguette|mlewi|tabouna/, '🥖'], [/riz/, '🍚'],
+      [/pate|spaghetti|macaroni|couscous|nouille/, '🍝'], [/citron/, '🍋'], [/olive|huile/, '🫒'],
+      [/lait|creme/, '🥛'], [/persil|coriandre|menthe|basilic/, '🌿'], [/salade|laitue|epinard/, '🥬'],
+      [/champignon/, '🍄'], [/mais/, '🌽'], [/aubergine/, '🍆'], [/courgette|concombre/, '🥒'],
+      [/pois chiche|lentille|haricot|feve/, '🫘'], [/sel\b|epice|cumin|poivre\b/, '🧂']
+    ];
+
+    function canon(i) { const u = i.toUpperCase(); return SYNONYMES[u] || u; }
+
+    function icone(nom) {
+      const n = norm(nom);
+      const trouve = ICONES.find(([re]) => re.test(n));
+      return trouve ? trouve[1] : '🥄';
+    }
+
+    // Ensemble des ingrédients (noms de référence) d'un repas
+    function ingredientsDe(r) {
+      return new Set(decouper(r.principal + ' / ' + r.facultatif).map(canon));
+    }
+
+    // Libellé d'une puce : nom de référence + synonymes trouvés dans la feuille
+    let libellesIngr = {};
+    let choisis = new Set();
+
+    function construirePuces() {
+      const compte = {};
+      libellesIngr = {};
+      repas.forEach(r => decouper(r.principal + ' / ' + r.facultatif).forEach(brut => {
+        const c = canon(brut);
+        (libellesIngr[c] = libellesIngr[c] || new Set([c])).add(brut.toUpperCase());
+      }));
+      repas.forEach(r => ingredientsDe(r).forEach(c => compte[c] = (compte[c] || 0) + 1));
+      // On retire des choix les ingrédients qui n'existent plus
+      choisis = new Set([...choisis].filter(c => compte[c]));
+      return Object.keys(compte).sort((a, b) => compte[b] - compte[a] || a.localeCompare(b));
+    }
+
+    function basculer(c) {
+      choisis.has(c) ? choisis.delete(c) : choisis.add(c);
+      afficher();
+    }
+
+    function toutEffacer() {
+      choisis.clear();
+      document.getElementById('recherche').value = '';
+      document.getElementById('filtreNature').value = '';
+      afficher();
+    }
+
+    function puceIngr(i, termes) {
+      const c = canon(i);
+      const style = choisis.has(c) ? ' style="background:#34a853;color:#fff"' : '';
+      return `<span${style}>${icone(c)} ${surligner(i, termes)}</span>`;
+    }
+
+    // ---------- Filtrage et affichage ----------
+
     function filtrer() {
       const termes = norm(document.getElementById('recherche').value).split(/\s+/).filter(Boolean);
       const nature = document.getElementById('filtreNature').value;
@@ -170,6 +258,8 @@
         termes,
         liste: repas.filter(r => {
           if (nature && r.nature !== nature) return false;
+          const sesIngr = ingredientsDe(r);
+          if (![...choisis].every(c => sesIngr.has(c))) return false;
           const nom = norm(r.libelle + ' ' + r.code);
           const ingr = norm(r.principal + ' ' + r.facultatif);
           const cible = mode === 'nom' ? nom : mode === 'ingr' ? ingr : nom + ' ' + ingr + ' ' + norm(r.astuce + ' ' + r.remarque);
@@ -178,15 +268,31 @@
       };
     }
 
+    function afficherPuces(resultats) {
+      const tous = construirePuces();
+      // Ingrédients présents dans au moins un des résultats actuels
+      const possibles = new Set();
+      resultats.forEach(r => ingredientsDe(r).forEach(c => possibles.add(c)));
+      document.getElementById('puces').innerHTML = tous.map(c => {
+        const classe = choisis.has(c) ? 'actif' : possibles.has(c) ? '' : 'impossible';
+        const libelle = [...libellesIngr[c]].join(' / ');
+        return `<button class="puce ${classe}" onclick="basculer('${esc(c)}')" title="${esc(libelle)}">
+                  <span class="ico">${icone(c)}</span>${esc(libelle)}</button>`;
+      }).join('') || '<span class="aide">Aucun ingrédient pour l’instant.</span>';
+    }
+
     function afficher() {
+      construirePuces();
       const { termes, liste } = filtrer();
-      document.getElementById('info').textContent = `${liste.length} repas trouvé(s) sur ${repas.length}`;
+      afficherPuces(liste);
+      const nbChoisis = choisis.size ? ` — ${choisis.size} ingrédient(s) choisi(s)` : '';
+      document.getElementById('info').textContent = `${liste.length} repas trouvé(s) sur ${repas.length}${nbChoisis}`;
       document.getElementById('liste').innerHTML = liste.map(r => `
         <div class="carte" onclick="voir('${esc(r.code)}')">
           <span class="badge">${esc(r.nature || '—')}</span><span class="code">${esc(r.code)}</span>
           <h3>${surligner(r.libelle, termes)}</h3>
-          <div class="ingr">${decouper(r.principal).map(i => `<span>${surligner(i, termes)}</span>`).join('')}</div>
-          ${r.facultatif ? `<div class="ingr fac" style="margin-top:4px">${decouper(r.facultatif).map(i => `<span>${surligner(i, termes)}</span>`).join('')}</div>` : ''}
+          <div class="ingr">${decouper(r.principal).map(i => puceIngr(i, termes)).join('')}</div>
+          ${r.facultatif ? `<div class="ingr fac" style="margin-top:4px">${decouper(r.facultatif).map(i => puceIngr(i, termes)).join('')}</div>` : ''}
         </div>`).join('') || '<p>Aucun repas ne correspond à la recherche.</p>';
     }
 
@@ -197,9 +303,9 @@
         <span class="badge">${esc(r.nature || '—')}</span><span class="code">${esc(r.code)}</span>
         <h2>${esc(r.libelle)}</h2>
         <p><b>Ingrédients principaux :</b></p>
-        <div class="ingr">${decouper(r.principal).map(i => `<span>${esc(i)}</span>`).join('') || '—'}</div>
+        <div class="ingr">${decouper(r.principal).map(i => puceIngr(i, [])).join('') || '—'}</div>
         <p><b>Ingrédients facultatifs :</b></p>
-        <div class="ingr fac">${decouper(r.facultatif).map(i => `<span>${esc(i)}</span>`).join('') || '—'}</div>
+        <div class="ingr fac">${decouper(r.facultatif).map(i => puceIngr(i, [])).join('') || '—'}</div>
         <p><b>💡 Astuce :</b> ${esc(r.astuce) || '—'}</p>
         <p><b>📝 Remarque :</b> ${esc(r.remarque) || '—'}</p>
         <div class="actions">
