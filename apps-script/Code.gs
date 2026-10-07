@@ -17,7 +17,7 @@ function onOpen() {
 }
 
 function ouvrirGestionnaire() {
-  const html = HtmlService.createHtmlOutputFromFile('Index').setWidth(1000).setHeight(650);
+  const html = HtmlService.createHtmlOutputFromFile('Index').setWidth(1200).setHeight(780);
   SpreadsheetApp.getUi().showModalDialog(html, 'Gestionnaire de repas');
 }
 

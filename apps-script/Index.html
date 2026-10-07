@@ -3,103 +3,288 @@
 <head>
   <base target="_top">
   <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
   <style>
+    :root {
+      --violet: #6c5ce7; --violet-2: #8b7cf8; --rose: #fd79a8; --orange: #ffa94d;
+      --vert: #10b981; --vert-fonce: #059669; --rouge: #ef4444;
+      --texte: #1e1b4b; --texte-2: #64748b; --texte-3: #94a3b8;
+      --fond: #f5f3ff; --carte: #ffffff; --bord: #ece9fb;
+      --ombre: 0 1px 2px rgba(30,27,75,.04), 0 8px 24px rgba(108,92,231,.08);
+      --ombre-fort: 0 4px 10px rgba(30,27,75,.06), 0 20px 40px rgba(108,92,231,.18);
+      --rayon: 18px;
+    }
     * { box-sizing: border-box; }
-    body { font-family: Arial, sans-serif; margin: 0; padding: 12px; background: #f6f7fb; color: #222; }
-    h1 { font-size: 20px; margin: 0 0 12px; }
-    .barre { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 12px; }
-    input, select, textarea, button { font: inherit; padding: 8px 10px; border: 1px solid #ccd; border-radius: 6px; }
-    #recherche { flex: 1 1 220px; }
-    button { cursor: pointer; background: #fff; }
-    button.principal { background: #1a73e8; color: #fff; border-color: #1a73e8; }
-    button.danger { background: #d93025; color: #fff; border-color: #d93025; }
-    .info { font-size: 13px; color: #666; margin-bottom: 8px; }
-    .grille { display: grid; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); gap: 10px; }
-    .carte { background: #fff; border-radius: 8px; padding: 12px; box-shadow: 0 1px 3px rgba(0,0,0,.12); cursor: pointer; }
-    .carte:hover { box-shadow: 0 2px 8px rgba(0,0,0,.2); }
-    .carte h3 { margin: 4px 0 8px; font-size: 16px; }
-    .badge { display: inline-block; font-size: 11px; padding: 2px 8px; border-radius: 10px; background: #e8f0fe; color: #1a73e8; margin-right: 6px; }
-    .code { font-size: 11px; color: #888; }
-    .ingr { display: flex; flex-wrap: wrap; gap: 4px; }
-    .ingr span { font-size: 12px; background: #fdecea; color: #a50e0e; padding: 2px 8px; border-radius: 10px; }
-    .ingr.fac span { background: #e6f4ea; color: #137333; }
-    mark { background: #ffe58a; }
-    .filtres-ingr { background: #fff; border-radius: 8px; padding: 10px; margin-bottom: 12px; box-shadow: 0 1px 3px rgba(0,0,0,.12); }
-    .filtres-ingr .titre { display: flex; justify-content: space-between; align-items: center; font-size: 13px; font-weight: bold; margin-bottom: 8px; }
-    .filtres-ingr .titre button { padding: 4px 10px; font-size: 12px; }
-    .puces { display: flex; flex-wrap: wrap; gap: 6px; }
-    .puce { display: inline-flex; align-items: center; gap: 5px; padding: 6px 12px; border-radius: 20px; border: 1px solid #ddd;
-            background: #f1f3f4; color: #777; font-size: 13px; transition: all .15s; }
-    .puce .ico { font-size: 18px; filter: grayscale(70%); }
-    .puce:hover { border-color: #34a853; }
-    .puce.actif { background: #34a853; border-color: #2d8e47; color: #fff; font-weight: bold; }
+    body {
+      margin: 0; font-family: 'Plus Jakarta Sans', system-ui, sans-serif; color: var(--texte);
+      background: radial-gradient(circle at 0% 0%, #ede9fe 0, transparent 40%),
+                  radial-gradient(circle at 100% 0%, #fce7f3 0, transparent 35%), var(--fond);
+      min-height: 100vh;
+    }
+    button, input, select, textarea { font: inherit; color: inherit; }
+    button { cursor: pointer; border: 0; background: none; }
+    .page { max-width: 1180px; margin: 0 auto; padding: 20px 20px 60px; }
+
+    /* ---------- Barre du haut ---------- */
+    .topbar { display: flex; align-items: center; gap: 14px; margin-bottom: 22px; flex-wrap: wrap; }
+    .logo { width: 46px; height: 46px; border-radius: 14px; display: grid; place-items: center; font-size: 24px;
+            background: linear-gradient(135deg, var(--violet), var(--rose)); box-shadow: 0 8px 20px rgba(108,92,231,.35); }
+    .marque h1 { margin: 0; font-size: 20px; font-weight: 800; letter-spacing: -.02em; }
+    .marque p { margin: 2px 0 0; font-size: 13px; color: var(--texte-2); }
+    .topbar .espace { flex: 1; }
+    .btn { display: inline-flex; align-items: center; gap: 8px; padding: 11px 18px; border-radius: 12px;
+           font-weight: 700; font-size: 14px; transition: transform .15s, box-shadow .15s, background .15s; white-space: nowrap; }
+    .btn:hover { transform: translateY(-1px); }
+    .btn:active { transform: translateY(0); }
+    .btn-primaire { color: #fff; background: linear-gradient(135deg, var(--violet), var(--violet-2));
+                    box-shadow: 0 6px 16px rgba(108,92,231,.35); }
+    .btn-primaire:hover { box-shadow: 0 10px 22px rgba(108,92,231,.45); }
+    .btn-blanc { background: #fff; border: 1px solid var(--bord); box-shadow: var(--ombre); }
+    .btn-danger { color: #fff; background: var(--rouge); }
+    .btn-doux { background: #f1f0fb; color: var(--texte); }
+    .btn[disabled] { opacity: .6; pointer-events: none; }
+
+    /* ---------- Bandeau de recherche ---------- */
+    .hero { position: relative; overflow: hidden; border-radius: 26px; padding: 30px 28px 26px; color: #fff;
+            background: linear-gradient(120deg, #6c5ce7 0%, #a855f7 45%, #ec4899 80%, #fb923c 100%);
+            box-shadow: 0 20px 40px rgba(108,92,231,.25); margin-bottom: 20px; }
+    .hero::before, .hero::after { content: ''; position: absolute; border-radius: 50%; background: rgba(255,255,255,.12); }
+    .hero::before { width: 260px; height: 260px; right: -60px; top: -110px; }
+    .hero::after { width: 160px; height: 160px; right: 140px; bottom: -90px; }
+    .hero h2 { position: relative; margin: 0 0 4px; font-size: 26px; font-weight: 800; letter-spacing: -.02em; }
+    .hero p { position: relative; margin: 0 0 18px; opacity: .9; }
+    .hero .deco { position: absolute; right: 26px; top: 18px; font-size: 54px; opacity: .9; transform: rotate(12deg); }
+    .recherche { position: relative; display: flex; gap: 10px; flex-wrap: wrap; }
+    .champ { flex: 1 1 280px; position: relative; }
+    .champ svg { position: absolute; left: 16px; top: 50%; transform: translateY(-50%); color: var(--texte-3); }
+    .champ input { width: 100%; padding: 15px 16px 15px 46px; border: 0; border-radius: 14px; font-size: 15px;
+                   background: #fff; box-shadow: 0 8px 20px rgba(30,27,75,.15); outline: none; }
+    .champ input:focus { box-shadow: 0 0 0 4px rgba(255,255,255,.4), 0 8px 20px rgba(30,27,75,.15); }
+    .segment { display: inline-flex; background: rgba(255,255,255,.2); border-radius: 14px; padding: 4px; backdrop-filter: blur(6px); }
+    .segment button { padding: 10px 14px; border-radius: 10px; color: #fff; font-weight: 600; font-size: 13px; }
+    .segment button.actif { background: #fff; color: var(--violet); box-shadow: 0 4px 10px rgba(30,27,75,.15); }
+
+    /* ---------- Statistiques ---------- */
+    .stats { display: grid; grid-template-columns: repeat(4, 1fr); gap: 14px; margin-bottom: 20px; }
+    .stat { background: var(--carte); border-radius: var(--rayon); padding: 16px; display: flex; align-items: center; gap: 14px;
+            box-shadow: var(--ombre); border: 1px solid var(--bord); }
+    .stat .bulle { width: 44px; height: 44px; border-radius: 12px; display: grid; place-items: center; font-size: 22px; flex-shrink: 0; }
+    .stat b { display: block; font-size: 22px; font-weight: 800; line-height: 1; }
+    .stat span { font-size: 12px; color: var(--texte-2); font-weight: 600; }
+
+    /* ---------- Panneaux de filtres ---------- */
+    .panneau { background: var(--carte); border-radius: var(--rayon); padding: 18px; box-shadow: var(--ombre);
+               border: 1px solid var(--bord); margin-bottom: 20px; }
+    .panneau-tete { display: flex; align-items: center; justify-content: space-between; gap: 10px; margin-bottom: 14px; }
+    .panneau-tete h3 { margin: 0; font-size: 15px; font-weight: 800; display: flex; align-items: center; gap: 8px; }
+    .compteur { font-size: 11px; font-weight: 700; padding: 3px 9px; border-radius: 999px; background: #ede9fe; color: var(--violet); }
+    .lien { font-size: 13px; font-weight: 700; color: var(--violet); padding: 6px 10px; border-radius: 8px; }
+    .lien:hover { background: #f1f0fb; }
+    .natures { display: flex; gap: 8px; flex-wrap: wrap; }
+    .nature { padding: 9px 16px; border-radius: 999px; font-weight: 700; font-size: 13px; background: #f4f3fb; color: var(--texte-2);
+              border: 1.5px solid transparent; transition: all .15s; }
+    .nature:hover { border-color: #d9d4fb; }
+    .nature.actif { background: var(--texte); color: #fff; }
+    .nature small { opacity: .6; margin-left: 4px; }
+
+    .puces { display: flex; flex-wrap: wrap; gap: 8px; }
+    .puce { display: inline-flex; align-items: center; gap: 7px; padding: 8px 14px 8px 8px; border-radius: 999px;
+            background: #f4f4f6; color: #8a8fa3; font-size: 13px; font-weight: 600; border: 1.5px solid #ececf1; transition: all .18s; }
+    .puce .ico { width: 28px; height: 28px; border-radius: 50%; display: grid; place-items: center; font-size: 16px;
+                 background: #fff; filter: grayscale(80%); transition: filter .18s; }
+    .puce:hover { border-color: #a7f3d0; color: var(--texte); transform: translateY(-1px); }
+    .puce:hover .ico { filter: none; }
+    .puce.actif { background: linear-gradient(135deg, var(--vert), #34d399); color: #fff; border-color: var(--vert);
+                  box-shadow: 0 6px 14px rgba(16,185,129,.35); }
     .puce.actif .ico { filter: none; }
+    .puce.actif::after { content: '✓'; font-weight: 800; margin-left: 2px; }
     .puce.impossible { opacity: .35; }
-    .fond { position: fixed; inset: 0; background: rgba(0,0,0,.4); display: none; align-items: center; justify-content: center; padding: 12px; }
-    .fond.ouvert { display: flex; }
-    .fenetre { background: #fff; border-radius: 10px; padding: 18px; width: 100%; max-width: 560px; max-height: 95vh; overflow: auto; }
-    .fenetre h2 { margin-top: 0; }
-    .fenetre label { display: block; font-size: 13px; font-weight: bold; margin: 10px 0 4px; }
-    .fenetre input, .fenetre select, .fenetre textarea { width: 100%; }
-    .actions { display: flex; gap: 8px; justify-content: flex-end; margin-top: 16px; flex-wrap: wrap; }
-    .detail p { margin: 6px 0; }
-    .aide { font-size: 12px; color: #666; }
-    #message { position: fixed; bottom: 12px; left: 50%; transform: translateX(-50%); background: #323232; color: #fff; padding: 10px 16px; border-radius: 6px; display: none; }
+    .puce.impossible:hover { transform: none; }
+
+    /* ---------- Résultats ---------- */
+    .resultats-tete { display: flex; align-items: baseline; justify-content: space-between; margin: 6px 4px 14px; gap: 10px; flex-wrap: wrap; }
+    .resultats-tete h3 { margin: 0; font-size: 18px; font-weight: 800; }
+    .resultats-tete span { color: var(--texte-2); font-size: 13px; }
+    .grille { display: grid; grid-template-columns: repeat(auto-fill, minmax(270px, 1fr)); gap: 18px; }
+    .carte { background: var(--carte); border-radius: 20px; overflow: hidden; box-shadow: var(--ombre); border: 1px solid var(--bord);
+             cursor: pointer; transition: transform .2s, box-shadow .2s; display: flex; flex-direction: column;
+             animation: apparait .35s ease both; }
+    .carte:hover { transform: translateY(-4px); box-shadow: var(--ombre-fort); }
+    @keyframes apparait { from { opacity: 0; transform: translateY(8px); } }
+    .carte-visuel { height: 108px; position: relative; display: grid; place-items: center; }
+    .carte-visuel .emoji { font-size: 54px; filter: drop-shadow(0 8px 12px rgba(0,0,0,.18)); transition: transform .25s; }
+    .carte:hover .emoji { transform: scale(1.12) rotate(-6deg); }
+    .etiquette { position: absolute; top: 12px; left: 12px; padding: 4px 10px; border-radius: 999px; font-size: 11px; font-weight: 800;
+                 background: rgba(255,255,255,.9); letter-spacing: .03em; }
+    .code { position: absolute; top: 12px; right: 12px; font-size: 11px; font-weight: 700; color: rgba(255,255,255,.95);
+            background: rgba(0,0,0,.15); padding: 4px 8px; border-radius: 8px; }
+    .carte-corps { padding: 14px 16px 16px; display: flex; flex-direction: column; gap: 10px; flex: 1; }
+    .carte-corps h4 { margin: 0; font-size: 16px; font-weight: 800; letter-spacing: -.01em; }
+    .ingr { display: flex; flex-wrap: wrap; gap: 6px; }
+    .ingr span { font-size: 12px; font-weight: 600; padding: 4px 9px; border-radius: 8px; background: #f5f5fa; color: #525a72; }
+    .ingr span.choisi { background: #d1fae5; color: var(--vert-fonce); }
+    .ingr.fac span { background: #fff; border: 1px dashed #d4d4e0; color: var(--texte-2); }
+    .astuce { margin-top: auto; font-size: 12px; color: #92400e; background: #fffbeb; border-radius: 10px; padding: 8px 10px; }
+    mark { background: #fde68a; color: inherit; border-radius: 3px; padding: 0 1px; }
+    .vide { grid-column: 1 / -1; text-align: center; padding: 50px 20px; background: var(--carte); border-radius: 20px;
+            border: 2px dashed var(--bord); color: var(--texte-2); }
+    .vide div { font-size: 46px; margin-bottom: 8px; }
+    .vide b { display: block; color: var(--texte); font-size: 16px; margin-bottom: 4px; }
+
+    /* ---------- Fenêtres ---------- */
+    .fond { position: fixed; inset: 0; background: rgba(30,27,75,.45); backdrop-filter: blur(6px); display: none;
+            align-items: center; justify-content: center; padding: 16px; z-index: 10; }
+    .fond.ouvert { display: flex; animation: fondu .2s ease; }
+    @keyframes fondu { from { opacity: 0; } }
+    .fenetre { background: #fff; border-radius: 24px; width: 100%; max-width: 560px; max-height: 92vh; overflow: auto;
+               box-shadow: 0 30px 60px rgba(30,27,75,.3); animation: monte .25s cubic-bezier(.2,.9,.3,1.2); }
+    @keyframes monte { from { opacity: 0; transform: translateY(20px) scale(.97); } }
+    .fenetre-visuel { height: 150px; display: grid; place-items: center; position: relative; }
+    .fenetre-visuel .emoji { font-size: 74px; filter: drop-shadow(0 10px 16px rgba(0,0,0,.2)); }
+    .fermer-x { position: absolute; top: 14px; right: 14px; width: 34px; height: 34px; border-radius: 50%;
+                background: rgba(255,255,255,.9); font-size: 16px; font-weight: 700; }
+    .fenetre-corps { padding: 22px 24px 24px; }
+    .fenetre-corps h2 { margin: 0 0 4px; font-size: 22px; font-weight: 800; letter-spacing: -.02em; }
+    .sous-titre { color: var(--texte-2); font-size: 13px; margin-bottom: 18px; }
+    .bloc { margin-bottom: 16px; }
+    .bloc h5 { margin: 0 0 8px; font-size: 12px; text-transform: uppercase; letter-spacing: .06em; color: var(--texte-3); }
+    .bloc .texte { background: #f8f7fd; border-radius: 12px; padding: 12px; font-size: 14px; }
+    .actions { display: flex; gap: 10px; justify-content: flex-end; flex-wrap: wrap; margin-top: 20px; }
+    .actions .gauche { margin-right: auto; }
+
+    .form label { display: block; font-size: 13px; font-weight: 700; margin: 14px 0 6px; }
+    .form input, .form textarea { width: 100%; padding: 12px 14px; border-radius: 12px; border: 1.5px solid var(--bord);
+                                  background: #fafaff; outline: none; transition: border .15s, box-shadow .15s; resize: vertical; }
+    .form input:focus, .form textarea:focus { border-color: var(--violet-2); box-shadow: 0 0 0 4px rgba(108,92,231,.12); background: #fff; }
+    .form .deux { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+    .aide { font-size: 12px; color: var(--texte-3); margin-top: 5px; }
+
+    /* ---------- Notification ---------- */
+    #message { position: fixed; bottom: 22px; right: 22px; background: var(--texte); color: #fff; padding: 13px 18px; border-radius: 14px;
+               font-weight: 600; font-size: 14px; box-shadow: 0 12px 30px rgba(30,27,75,.3); z-index: 20;
+               transform: translateY(120px); opacity: 0; transition: all .3s cubic-bezier(.2,.9,.3,1.2); }
+    #message.visible { transform: none; opacity: 1; }
+
+    @media (max-width: 760px) {
+      .stats { grid-template-columns: repeat(2, 1fr); }
+      .hero { padding: 24px 18px 20px; }
+      .hero .deco { display: none; }
+      .topbar .btn span.txt { display: none; }
+      .form .deux { grid-template-columns: 1fr; }
+    }
   </style>
 </head>
 <body>
-  <h1>🍽️ Gestionnaire de repas</h1>
+  <div class="page">
 
-  <div class="barre">
-    <input id="recherche" placeholder="Rechercher un repas ou un ingrédient (ex : pizza, poulet, thon...)" oninput="afficher()">
-    <select id="filtreNature" onchange="afficher()"><option value="">Toutes les natures</option></select>
-    <select id="mode" onchange="afficher()">
-      <option value="tout">Nom + ingrédients</option>
-      <option value="nom">Nom uniquement</option>
-      <option value="ingr">Ingrédients uniquement</option>
-    </select>
-    <button class="principal" onclick="ouvrirFormulaire()">+ Ajouter</button>
-    <button onclick="aleatoire()">🎲 Idée au hasard</button>
-  </div>
+    <header class="topbar">
+      <div class="logo">🍽️</div>
+      <div class="marque">
+        <h1>Idée Repas</h1>
+        <p>Votre carnet de recettes intelligent</p>
+      </div>
+      <div class="espace"></div>
+      <button class="btn btn-blanc" onclick="aleatoire()">🎲 <span class="txt">Surprends-moi</span></button>
+      <button class="btn btn-primaire" onclick="ouvrirFormulaire()">＋ <span class="txt">Nouveau repas</span></button>
+    </header>
 
-  <div class="filtres-ingr">
-    <div class="titre">
-      <span>🥕 Choisir les ingrédients</span>
-      <button onclick="toutEffacer()">✖ Tout effacer</button>
+    <section class="hero">
+      <div class="deco">🥘</div>
+      <h2 id="salut">Bonjour 👋</h2>
+      <p>Qu’est-ce qu’on mange aujourd’hui ? Cherchez un plat ou choisissez vos ingrédients.</p>
+      <div class="recherche">
+        <div class="champ">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg>
+          <input id="recherche" placeholder="Pizza, poulet, thon…" oninput="afficher()" autocomplete="off">
+        </div>
+        <div class="segment" id="mode">
+          <button data-mode="tout" class="actif" onclick="choisirMode('tout')">Tout</button>
+          <button data-mode="nom" onclick="choisirMode('nom')">Nom</button>
+          <button data-mode="ingr" onclick="choisirMode('ingr')">Ingrédients</button>
+        </div>
+      </div>
+    </section>
+
+    <section class="stats">
+      <div class="stat"><div class="bulle" style="background:#ede9fe">🍲</div><div><b id="sRepas">0</b><span>Repas</span></div></div>
+      <div class="stat"><div class="bulle" style="background:#d1fae5">🥕</div><div><b id="sIngr">0</b><span>Ingrédients</span></div></div>
+      <div class="stat"><div class="bulle" style="background:#fce7f3">🏷️</div><div><b id="sNat">0</b><span>Catégories</span></div></div>
+      <div class="stat"><div class="bulle" style="background:#ffedd5">✨</div><div><b id="sRes">0</b><span>Résultats</span></div></div>
+    </section>
+
+    <section class="panneau">
+      <div class="panneau-tete"><h3>🏷️ Catégories</h3></div>
+      <div class="natures" id="natures"></div>
+    </section>
+
+    <section class="panneau">
+      <div class="panneau-tete">
+        <h3>🥕 Ingrédients <span class="compteur" id="nbChoisis" hidden></span></h3>
+        <button class="lien" onclick="toutEffacer()">Réinitialiser</button>
+      </div>
+      <div class="puces" id="puces"></div>
+    </section>
+
+    <div class="resultats-tete">
+      <h3 id="titreRes">Tous les repas</h3>
+      <span id="info">Chargement…</span>
     </div>
-    <div class="puces" id="puces"></div>
+    <div class="grille" id="liste"></div>
   </div>
-
-  <div class="info" id="info">Chargement…</div>
-  <div class="grille" id="liste"></div>
 
   <!-- Détail -->
   <div class="fond" id="fondDetail" onclick="if(event.target===this)fermer('fondDetail')">
-    <div class="fenetre detail" id="detail"></div>
+    <div class="fenetre" id="detail"></div>
   </div>
 
   <!-- Formulaire -->
   <div class="fond" id="fondForm" onclick="if(event.target===this)fermer('fondForm')">
     <div class="fenetre">
-      <h2 id="titreForm">Nouveau repas</h2>
-      <input type="hidden" id="f_code">
-      <label>Nom du repas *</label>
-      <input id="f_libelle">
-      <label>Nature</label>
-      <input id="f_nature" list="natures" placeholder="REPAS, FAST FOOD…">
-      <datalist id="natures"></datalist>
-      <label>Ingrédients principaux</label>
-      <textarea id="f_principal" rows="2"></textarea>
-      <div class="aide">Séparer par « / » ou « - » (ex : TOMATE / OIGNON / POULET)</div>
-      <label>Ingrédients facultatifs</label>
-      <textarea id="f_facultatif" rows="2"></textarea>
-      <label>Astuce</label>
-      <textarea id="f_astuce" rows="2"></textarea>
-      <label>Remarque</label>
-      <textarea id="f_remarque" rows="2"></textarea>
-      <div class="actions">
-        <button onclick="fermer('fondForm')">Annuler</button>
-        <button class="principal" id="btnEnregistrer" onclick="enregistrer()">Enregistrer</button>
+      <div class="fenetre-corps form">
+        <h2 id="titreForm">Nouveau repas</h2>
+        <div class="sous-titre">Les informations sont enregistrées directement dans votre Google Sheet.</div>
+        <input type="hidden" id="f_code">
+        <div class="deux">
+          <div>
+            <label>Nom du repas *</label>
+            <input id="f_libelle" placeholder="Ex : COUSCOUS AU POULET">
+          </div>
+          <div>
+            <label>Catégorie</label>
+            <input id="f_nature" list="listeNatures" placeholder="REPAS, FAST FOOD…">
+            <datalist id="listeNatures"></datalist>
+          </div>
+        </div>
+        <label>🥘 Ingrédients principaux</label>
+        <textarea id="f_principal" rows="2" placeholder="TOMATE / OIGNON / POULET"></textarea>
+        <div class="aide">Séparez les ingrédients par « / » ou « - »</div>
+        <label>➕ Ingrédients facultatifs</label>
+        <textarea id="f_facultatif" rows="2"></textarea>
+        <label>💡 Astuce</label>
+        <textarea id="f_astuce" rows="2"></textarea>
+        <label>📝 Remarque</label>
+        <textarea id="f_remarque" rows="2"></textarea>
+        <div class="actions">
+          <button class="btn btn-doux" onclick="fermer('fondForm')">Annuler</button>
+          <button class="btn btn-primaire" id="btnEnregistrer" onclick="enregistrer()">Enregistrer</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Confirmation -->
+  <div class="fond" id="fondConfirm" onclick="if(event.target===this)fermer('fondConfirm')">
+    <div class="fenetre" style="max-width:400px">
+      <div class="fenetre-corps" style="text-align:center">
+        <div style="font-size:48px">🗑️</div>
+        <h2>Supprimer ce repas ?</h2>
+        <div class="sous-titre" id="texteConfirm"></div>
+        <div class="actions" style="justify-content:center">
+          <button class="btn btn-doux" onclick="fermer('fondConfirm')">Annuler</button>
+          <button class="btn btn-danger" id="btnConfirm">Supprimer</button>
+        </div>
       </div>
     </div>
   </div>
@@ -108,6 +293,8 @@
 
   <script>
     let repas = [];
+    let mode = 'tout';
+    let natureChoisie = '';
 
     // Hors de Google Sheets (aperçu du fichier), on utilise des données de démonstration
     const DEMO = typeof google === 'undefined' || !google.script;
@@ -143,20 +330,22 @@
     }
 
     function charger() {
+      const h = new Date().getHours();
+      document.getElementById('salut').textContent = (h < 18 ? 'Bonjour' : 'Bonsoir') + ' 👋';
+      document.getElementById('liste').innerHTML = '<div class="vide"><div>⏳</div><b>Chargement des repas…</b></div>';
       serveur('getRepas', undefined, maj, erreur);
-      if (DEMO) toast('Mode démo : les données réelles s’affichent dans Google Sheets');
+      if (DEMO) toast('Mode démo : vos vraies données s’affichent dans Google Sheets');
     }
 
     function maj(liste) {
       repas = liste || [];
       const natures = [...new Set(repas.map(r => r.nature).filter(Boolean))].sort();
-      const sel = document.getElementById('filtreNature');
-      const actuel = sel.value;
-      sel.innerHTML = '<option value="">Toutes les natures</option>' +
-        natures.map(n => `<option ${n === actuel ? 'selected' : ''}>${esc(n)}</option>`).join('');
-      document.getElementById('natures').innerHTML = natures.map(n => `<option value="${esc(n)}">`).join('');
+      if (natureChoisie && !natures.includes(natureChoisie)) natureChoisie = '';
+      document.getElementById('listeNatures').innerHTML = natures.map(n => `<option value="${esc(n)}">`).join('');
       afficher();
     }
+
+    // ---------- Outils ----------
 
     // Supprime accents et met en minuscules pour une recherche tolérante
     function norm(s) {
@@ -179,6 +368,35 @@
         h = h.replace(re, '<mark>$1</mark>');
       });
       return h;
+    }
+
+    // ---------- Couleurs et emojis ----------
+
+    const DEGRADES = [
+      ['#a78bfa', '#f472b6'], ['#fb923c', '#facc15'], ['#34d399', '#22d3ee'],
+      ['#60a5fa', '#a78bfa'], ['#f472b6', '#fb7185'], ['#4ade80', '#a3e635']
+    ];
+
+    function degrade(nature) {
+      let h = 0;
+      for (const ch of String(nature || '')) h = (h * 31 + ch.charCodeAt(0)) >>> 0;
+      const [a, b] = DEGRADES[h % DEGRADES.length];
+      return `linear-gradient(135deg, ${a}, ${b})`;
+    }
+
+    // Emoji du plat d'après son nom, sinon d'après sa catégorie
+    const PLATS = [
+      [/pizza/, '🍕'], [/burger/, '🍔'], [/sandwich|chapati|makloub|libanais/, '🥪'], [/tacos|wrap/, '🌯'],
+      [/salade/, '🥗'], [/soupe|chorba|lablabi/, '🍲'], [/couscous|riz/, '🍛'], [/pate|spaghetti|macaroni|lasagne/, '🍝'],
+      [/poisson|thon|sardine/, '🐟'], [/poulet|djej/, '🍗'], [/frite/, '🍟'], [/oeuf|ojja|omelette/, '🍳'],
+      [/brik/, '🥟'], [/gateau|dessert|tarte/, '🍰'], [/viande|mhammar|m7ammar|kefta|steak/, '🥩']
+    ];
+
+    function emojiRepas(r) {
+      const n = norm(r.libelle);
+      const p = PLATS.find(([re]) => re.test(n));
+      if (p) return p[1];
+      return /fast/.test(norm(r.nature)) ? '🍟' : '🥘';
     }
 
     // ---------- Ingrédients : synonymes et icônes ----------
@@ -235,29 +453,34 @@
       afficher();
     }
 
+    function choisirNature(n) { natureChoisie = n; afficher(); }
+
+    function choisirMode(m) {
+      mode = m;
+      document.querySelectorAll('#mode button').forEach(b => b.classList.toggle('actif', b.dataset.mode === m));
+      afficher();
+    }
+
     function toutEffacer() {
       choisis.clear();
+      natureChoisie = '';
       document.getElementById('recherche').value = '';
-      document.getElementById('filtreNature').value = '';
       afficher();
     }
 
     function puceIngr(i, termes) {
       const c = canon(i);
-      const style = choisis.has(c) ? ' style="background:#34a853;color:#fff"' : '';
-      return `<span${style}>${icone(c)} ${surligner(i, termes)}</span>`;
+      return `<span class="${choisis.has(c) ? 'choisi' : ''}">${icone(c)} ${surligner(i, termes)}</span>`;
     }
 
     // ---------- Filtrage et affichage ----------
 
     function filtrer() {
       const termes = norm(document.getElementById('recherche').value).split(/\s+/).filter(Boolean);
-      const nature = document.getElementById('filtreNature').value;
-      const mode = document.getElementById('mode').value;
       return {
         termes,
         liste: repas.filter(r => {
-          if (nature && r.nature !== nature) return false;
+          if (natureChoisie && r.nature !== natureChoisie) return false;
           const sesIngr = ingredientsDe(r);
           if (![...choisis].every(c => sesIngr.has(c))) return false;
           const nom = norm(r.libelle + ' ' + r.code);
@@ -268,8 +491,17 @@
       };
     }
 
-    function afficherPuces(resultats) {
-      const tous = construirePuces();
+    function afficherNatures() {
+      const compte = {};
+      repas.forEach(r => { if (r.nature) compte[r.nature] = (compte[r.nature] || 0) + 1; });
+      const bouton = (val, txt, nb) =>
+        `<button class="nature ${natureChoisie === val ? 'actif' : ''}" onclick="choisirNature('${esc(val)}')">${txt}<small>${nb}</small></button>`;
+      document.getElementById('natures').innerHTML = bouton('', '✨ Toutes', repas.length) +
+        Object.keys(compte).sort().map(n => bouton(n, esc(n), compte[n])).join('');
+      return Object.keys(compte).length;
+    }
+
+    function afficherPuces(resultats, tous) {
       // Ingrédients présents dans au moins un des résultats actuels
       const possibles = new Set();
       resultats.forEach(r => ingredientsDe(r).forEach(c => possibles.add(c)));
@@ -279,46 +511,72 @@
         return `<button class="puce ${classe}" onclick="basculer('${esc(c)}')" title="${esc(libelle)}">
                   <span class="ico">${icone(c)}</span>${esc(libelle)}</button>`;
       }).join('') || '<span class="aide">Aucun ingrédient pour l’instant.</span>';
+      const badge = document.getElementById('nbChoisis');
+      badge.hidden = !choisis.size;
+      badge.textContent = choisis.size + ' choisi' + (choisis.size > 1 ? 's' : '');
     }
 
     function afficher() {
-      construirePuces();
+      const tous = construirePuces();
       const { termes, liste } = filtrer();
-      afficherPuces(liste);
-      const nbChoisis = choisis.size ? ` — ${choisis.size} ingrédient(s) choisi(s)` : '';
-      document.getElementById('info').textContent = `${liste.length} repas trouvé(s) sur ${repas.length}${nbChoisis}`;
-      document.getElementById('liste').innerHTML = liste.map(r => `
-        <div class="carte" onclick="voir('${esc(r.code)}')">
-          <span class="badge">${esc(r.nature || '—')}</span><span class="code">${esc(r.code)}</span>
-          <h3>${surligner(r.libelle, termes)}</h3>
-          <div class="ingr">${decouper(r.principal).map(i => puceIngr(i, termes)).join('')}</div>
-          ${r.facultatif ? `<div class="ingr fac" style="margin-top:4px">${decouper(r.facultatif).map(i => puceIngr(i, termes)).join('')}</div>` : ''}
-        </div>`).join('') || '<p>Aucun repas ne correspond à la recherche.</p>';
+      const nbNatures = afficherNatures();
+      afficherPuces(liste, tous);
+
+      document.getElementById('sRepas').textContent = repas.length;
+      document.getElementById('sIngr').textContent = tous.length;
+      document.getElementById('sNat').textContent = nbNatures;
+      document.getElementById('sRes').textContent = liste.length;
+
+      const filtre = termes.length || choisis.size || natureChoisie;
+      document.getElementById('titreRes').textContent = filtre ? 'Résultats' : 'Tous les repas';
+      document.getElementById('info').textContent = `${liste.length} sur ${repas.length} repas`;
+
+      document.getElementById('liste').innerHTML = liste.map((r, n) => `
+        <article class="carte" style="animation-delay:${Math.min(n, 12) * 30}ms" onclick="voir('${esc(r.code)}')">
+          <div class="carte-visuel" style="background:${degrade(r.nature)}">
+            <span class="etiquette">${esc(r.nature || 'SANS CATÉGORIE')}</span>
+            <span class="code">${esc(r.code)}</span>
+            <span class="emoji">${emojiRepas(r)}</span>
+          </div>
+          <div class="carte-corps">
+            <h4>${surligner(r.libelle, termes)}</h4>
+            <div class="ingr">${decouper(r.principal).map(i => puceIngr(i, termes)).join('')}</div>
+            ${r.facultatif ? `<div class="ingr fac">${decouper(r.facultatif).map(i => puceIngr(i, termes)).join('')}</div>` : ''}
+            ${r.astuce ? `<div class="astuce">💡 ${surligner(r.astuce, termes)}</div>` : ''}
+          </div>
+        </article>`).join('') ||
+        `<div class="vide"><div>🔍</div><b>Aucun repas trouvé</b>Essayez de retirer un ingrédient ou une catégorie.
+           <div style="font-size:inherit;margin-top:14px"><button class="btn btn-doux" onclick="toutEffacer()">Réinitialiser les filtres</button></div></div>`;
     }
 
     function voir(code) {
       const r = repas.find(x => x.code === code);
       if (!r) return;
+      const liste = s => decouper(s).map(i => puceIngr(i, [])).join('') || '<span>—</span>';
       document.getElementById('detail').innerHTML = `
-        <span class="badge">${esc(r.nature || '—')}</span><span class="code">${esc(r.code)}</span>
-        <h2>${esc(r.libelle)}</h2>
-        <p><b>Ingrédients principaux :</b></p>
-        <div class="ingr">${decouper(r.principal).map(i => puceIngr(i, [])).join('') || '—'}</div>
-        <p><b>Ingrédients facultatifs :</b></p>
-        <div class="ingr fac">${decouper(r.facultatif).map(i => puceIngr(i, [])).join('') || '—'}</div>
-        <p><b>💡 Astuce :</b> ${esc(r.astuce) || '—'}</p>
-        <p><b>📝 Remarque :</b> ${esc(r.remarque) || '—'}</p>
-        <div class="actions">
-          <button class="danger" onclick="supprimer('${esc(r.code)}')">Supprimer</button>
-          <button onclick="fermer('fondDetail')">Fermer</button>
-          <button class="principal" onclick="fermer('fondDetail');ouvrirFormulaire('${esc(r.code)}')">Modifier</button>
+        <div class="fenetre-visuel" style="background:${degrade(r.nature)}">
+          <span class="etiquette">${esc(r.nature || 'SANS CATÉGORIE')}</span>
+          <button class="fermer-x" onclick="fermer('fondDetail')">✕</button>
+          <span class="emoji">${emojiRepas(r)}</span>
+        </div>
+        <div class="fenetre-corps">
+          <h2>${esc(r.libelle)}</h2>
+          <div class="sous-titre">Réf. ${esc(r.code)} · ${ingredientsDe(r).size} ingrédient(s)</div>
+          <div class="bloc"><h5>🥘 Ingrédients principaux</h5><div class="ingr">${liste(r.principal)}</div></div>
+          ${r.facultatif ? `<div class="bloc"><h5>➕ Facultatifs</h5><div class="ingr fac">${liste(r.facultatif)}</div></div>` : ''}
+          ${r.astuce ? `<div class="bloc"><h5>💡 Astuce</h5><div class="texte">${esc(r.astuce)}</div></div>` : ''}
+          ${r.remarque ? `<div class="bloc"><h5>📝 Remarque</h5><div class="texte">${esc(r.remarque)}</div></div>` : ''}
+          <div class="actions">
+            <button class="btn btn-doux gauche" style="color:var(--rouge)" onclick="supprimer('${esc(r.code)}')">🗑️ Supprimer</button>
+            <button class="btn btn-primaire" onclick="fermer('fondDetail');ouvrirFormulaire('${esc(r.code)}')">✏️ Modifier</button>
+          </div>
         </div>`;
       document.getElementById('fondDetail').classList.add('ouvert');
     }
 
     function ouvrirFormulaire(code) {
       const r = repas.find(x => x.code === code) || {};
-      document.getElementById('titreForm').textContent = code ? 'Modifier ' + code : 'Nouveau repas';
+      document.getElementById('titreForm').textContent = code ? '✏️ Modifier ' + (r.libelle || code) : '✨ Nouveau repas';
       ['code', 'libelle', 'nature', 'principal', 'facultatif', 'astuce', 'remarque']
         .forEach(c => document.getElementById('f_' + c).value = r[c] || '');
       document.getElementById('fondForm').classList.add('ouvert');
@@ -329,24 +587,29 @@
       const data = {};
       ['code', 'libelle', 'nature', 'principal', 'facultatif', 'astuce', 'remarque']
         .forEach(c => data[c] = document.getElementById('f_' + c).value);
-      if (!data.libelle.trim()) { toast('Le nom du repas est obligatoire.'); return; }
+      if (!data.libelle.trim()) { toast('⚠️ Le nom du repas est obligatoire'); return; }
       const btn = document.getElementById('btnEnregistrer');
       btn.disabled = true;
       serveur('enregistrerRepas', data,
-        l => { btn.disabled = false; fermer('fondForm'); maj(l); toast('Repas enregistré ✔'); },
+        l => { btn.disabled = false; fermer('fondForm'); maj(l); toast('✅ Repas enregistré'); },
         e => { btn.disabled = false; erreur(e); });
     }
 
     function supprimer(code) {
-      if (!confirm('Supprimer le repas ' + code + ' ?')) return;
-      serveur('supprimerRepas', code,
-        l => { fermer('fondDetail'); maj(l); toast('Repas supprimé'); },
-        erreur);
+      const r = repas.find(x => x.code === code) || {};
+      document.getElementById('texteConfirm').textContent = `« ${r.libelle || code} » sera retiré de votre Google Sheet.`;
+      document.getElementById('btnConfirm').onclick = () => {
+        fermer('fondConfirm');
+        serveur('supprimerRepas', code,
+          l => { fermer('fondDetail'); maj(l); toast('🗑️ Repas supprimé'); },
+          erreur);
+      };
+      document.getElementById('fondConfirm').classList.add('ouvert');
     }
 
     function aleatoire() {
       const { liste } = filtrer();
-      if (!liste.length) { toast('Aucun repas disponible.'); return; }
+      if (!liste.length) { toast('Aucun repas disponible'); return; }
       voir(liste[Math.floor(Math.random() * liste.length)].code);
     }
 
@@ -354,13 +617,15 @@
 
     function toast(t) {
       const m = document.getElementById('message');
-      m.textContent = t; m.style.display = 'block';
-      clearTimeout(m._t); m._t = setTimeout(() => m.style.display = 'none', 2500);
+      m.textContent = t; m.classList.add('visible');
+      clearTimeout(m._t); m._t = setTimeout(() => m.classList.remove('visible'), 2800);
     }
 
-    function erreur(e) { toast('Erreur : ' + (e && e.message ? e.message : e)); }
+    function erreur(e) { toast('❌ Erreur : ' + (e && e.message ? e.message : e)); }
 
-    document.addEventListener('keydown', e => { if (e.key === 'Escape') { fermer('fondDetail'); fermer('fondForm'); } });
+    document.addEventListener('keydown', e => {
+      if (e.key === 'Escape') ['fondDetail', 'fondForm', 'fondConfirm'].forEach(fermer);
+    });
 
     charger();
   </script>
