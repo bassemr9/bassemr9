@@ -105,11 +105,14 @@
     .bloc-fam .puce.actif { background: var(--vert); }
     .bloc-fam.a-classer { border: 1px dashed #f0c78a; }
     /* Crayon pour changer la famille d'un ingrédient (visible au survol, toujours sur écran tactile et dans « À classer ») */
-    .crayon { width: 18px; height: 18px; border-radius: 50%; display: none; place-items: center; font-size: 10px; background: #fff;
-              color: var(--texte-2); margin-left: -2px; }
+    .bloc-fam .puce { position: relative; }
+    /* Posé par-dessus la pastille (coin haut droit) : il ne change jamais sa taille, donc rien ne bouge au survol */
+    .crayon { position: absolute; top: -7px; right: -6px; width: 18px; height: 18px; border-radius: 50%; display: grid;
+              place-items: center; font-size: 9px; background: #fff; color: var(--texte-2); box-shadow: 0 1px 4px rgba(0,0,0,.18);
+              opacity: 0; pointer-events: none; transition: opacity .12s; z-index: 2; }
     .crayon:hover { background: var(--noir); color: #fff; }
-    .bloc-fam .puce:hover .crayon, .bloc-fam.a-classer .crayon { display: grid; }
-    @media (hover: none) { .bloc-fam .crayon { display: grid; } }
+    .bloc-fam .puce:hover .crayon, .bloc-fam.a-classer .crayon { opacity: 1; pointer-events: auto; }
+    @media (hover: none) { .bloc-fam .crayon { opacity: 1; pointer-events: auto; } }
 
     /* Alertes de doublon et nouveaux ingrédients dans le formulaire */
     .alerte { margin-top: 6px; padding: 9px 11px; border-radius: 12px; font-size: 12.5px; display: flex; gap: 8px; align-items: center; flex-wrap: wrap; }
