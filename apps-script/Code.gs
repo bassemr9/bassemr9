@@ -161,6 +161,68 @@ function getDonnees() {
   return { repas: repas, ingredients: synchroniserIngredients_(repas) };
 }
 
+/**
+ * Écrit la famille de plusieurs ingrédients dans l'onglet "Ingrédients".
+ * familles = { 'COURGETTE': 'LÉGUMES', ... } ; une famille vide = "À classer".
+ * Un ingrédient absent de l'onglet y est ajouté.
+ */
+function ecrireFamilles_(familles) {
+  const noms = Object.keys(familles || {});
+  if (!noms.length) return;
+  const lock = LockService.getDocumentLock();
+  lock.waitLock(10000);
+  try {
+    const sh = feuilleIngredients_();
+    const liste = lireIngredients_(sh);
+    const nouvelles = [];
+    noms.forEach(brut => {
+      const nom = String(brut).trim().toUpperCase();
+      if (!nom) return;
+      const famille = String(familles[brut] || '').trim().toUpperCase();
+      const i = liste.find(x => x.nom === nom || x.synonymes.includes(nom));
+      if (i) sh.getRange(i.ligne, 2).setValue(famille);
+      else nouvelles.push([nom, famille, '', '']);
+    });
+    if (nouvelles.length) sh.getRange(sh.getLastRow() + 1, 1, nouvelles.length, ENTETE_INGR.length).setValues(nouvelles);
+  } finally {
+    lock.releaseLock();
+  }
+}
+
+/** Change la famille d'un ingrédient depuis l'interface. Renvoie les données à jour. */
+function changerFamille(nom, famille) {
+  ecrireFamilles_({ [nom]: famille });
+  return getDonnees();
+}
+
+// ---------- Doublons ----------
+
+// Petits mots ignorés quand on compare deux noms de repas
+const MOTS_VIDES = ['a', 'au', 'aux', 'la', 'le', 'les', 'l', 'de', 'du', 'des', 'd', 'avec', 'et', 'en', 'sauce'];
+
+/**
+ * Clé de comparaison d'un nom de repas : sans accents, sans petits mots, au singulier,
+ * synonymes remplacés, mots triés. "Couscous au poulet" et "COUSCOUS DJEJ" donnent la même clé.
+ */
+function cleRepas_(libelle, synonymes) {
+  const mots = norm_(libelle).replace(/[^a-z0-9]+/g, ' ').split(' ')
+    .filter(m => m && !MOTS_VIDES.includes(m))
+    .map(m => {
+      const syn = synonymes[m.toUpperCase()];
+      if (syn && syn.indexOf(' ') < 0) m = norm_(syn);
+      return m.length > 3 ? m.replace(/[sx]$/, '') : m;
+    });
+  return [...new Set(mots)].sort().join(' ');
+}
+
+/** Renvoie un repas existant dont le nom est identique une fois nettoyé (hors le repas lui-même). */
+function trouverDoublon_(repas, tous) {
+  const synonymes = Object.assign({}, SYNONYMES_DEFAUT);
+  lireIngredients_(feuilleIngredients_()).forEach(i => i.synonymes.forEach(s => (synonymes[s] = i.nom)));
+  const cle = cleRepas_(repas.libelle, synonymes);
+  return tous.find(r => r.code !== repas.code && cleRepas_(r.libelle, synonymes) === cle);
+}
+
 /** Calcule le prochain code libre : R001, R002, ... */
 function prochainCode_(repas) {
   const max = repas.reduce((m, r) => {
@@ -171,6 +233,8 @@ function prochainCode_(repas) {
 }
 
 /** Ajoute ou met à jour un repas. Renvoie les données à jour. */
+// repas.familles : familles choisies pour les nouveaux ingrédients ;
+// repas.forcer : enregistrer même si un repas au nom identique existe déjà.
 function enregistrerRepas(repas) {
   if (!repas || !String(repas.libelle || '').trim()) throw new Error('Le nom du repas est obligatoire.');
   const lock = LockService.getDocumentLock();
@@ -178,6 +242,11 @@ function enregistrerRepas(repas) {
   try {
     const sh = feuille_();
     const tous = getRepas();
+    if (!repas.forcer) {
+      const doublon = trouverDoublon_(repas, tous);
+      // Message lu par l'interface pour proposer « Enregistrer quand même »
+      if (doublon) throw new Error('DOUBLON|' + doublon.code + '|' + doublon.libelle);
+    }
     const existant = repas.code ? tous.find(r => r.code === repas.code) : null;
     const code = existant ? existant.code : prochainCode_(tous);
     const valeurs = [COLONNES.map(c => (c === 'code' ? code : String(repas[c] || '').trim().toUpperCase()))];
@@ -186,6 +255,7 @@ function enregistrerRepas(repas) {
   } finally {
     lock.releaseLock();
   }
+  ecrireFamilles_(repas.familles);
   return getDonnees();
 }
 

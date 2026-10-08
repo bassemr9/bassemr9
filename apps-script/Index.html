@@ -104,6 +104,25 @@
     .bloc-fam .puce { background: rgba(255,255,255,.85); }
     .bloc-fam .puce.actif { background: var(--vert); }
     .bloc-fam.a-classer { border: 1px dashed #f0c78a; }
+    /* Crayon pour changer la famille d'un ingrédient (visible au survol, toujours sur écran tactile et dans « À classer ») */
+    .crayon { width: 18px; height: 18px; border-radius: 50%; display: none; place-items: center; font-size: 10px; background: #fff;
+              color: var(--texte-2); margin-left: -2px; }
+    .crayon:hover { background: var(--noir); color: #fff; }
+    .bloc-fam .puce:hover .crayon, .bloc-fam.a-classer .crayon { display: grid; }
+    @media (hover: none) { .bloc-fam .crayon { display: grid; } }
+
+    /* Alertes de doublon et nouveaux ingrédients dans le formulaire */
+    .alerte { margin-top: 6px; padding: 9px 11px; border-radius: 12px; font-size: 12.5px; display: flex; gap: 8px; align-items: center; flex-wrap: wrap; }
+    .alerte.forte { background: #fdecec; color: #9f1c1c; }
+    .alerte.douce { background: #fff6e0; color: #8a5a00; }
+    .alerte b { font-weight: 700; }
+    .alerte .btn { padding: 5px 11px; font-size: 11.5px; }
+    .nouveaux { margin-top: 10px; padding: 10px 12px; border-radius: 14px; background: #f1f8f4; border: 1px dashed #b7dfc6; }
+    .nouveaux h5 { margin: 0 0 8px; font-size: 11px; text-transform: uppercase; letter-spacing: .05em; color: var(--vert); }
+    .ligne-ingr { display: flex; align-items: center; gap: 8px; margin-bottom: 6px; font-size: 13px; font-weight: 600; }
+    .ligne-ingr span { flex: 1; min-width: 0; }
+    .form .ligne-ingr input { flex: 0 0 52%; padding: 7px 10px; font-size: 12.5px; background: #fff; }
+    .liste-familles { display: flex; flex-wrap: wrap; gap: 6px; margin: 4px 0 12px; }
 
     .resultats { min-height: calc(100vh - 150px); }
 
@@ -204,6 +223,9 @@
       <button class="rail-btn" data-titre="Idée au hasard" onclick="aleatoire()">
         <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M16 3h5v5M4 20 21 3M21 16v5h-5M15 15l6 6M4 4l5 5"/></svg>
       </button>
+      <button class="rail-btn" data-titre="Rechercher les doublons" onclick="afficherDoublons()">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="8" y="8" width="13" height="13" rx="2"/><path d="M16 8V5a2 2 0 0 0-2-2H5a2 2 0 0 0-2 2v9a2 2 0 0 0 2 2h3"/></svg>
+      </button>
       <button class="rail-btn" data-titre="Réinitialiser les filtres" onclick="toutEffacer()">
         <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 12a9 9 0 1 0 3-6.7L3 8"/><path d="M3 3v5h5"/></svg>
       </button>
@@ -269,7 +291,7 @@
       <div class="deux">
         <div>
           <label>Nom du repas *</label>
-          <input id="f_libelle" placeholder="Ex : COUSCOUS AU POULET">
+          <input id="f_libelle" placeholder="Ex : COUSCOUS AU POULET" oninput="verifierDoublon()" autocomplete="off">
         </div>
         <div>
           <label>Catégorie</label>
@@ -277,11 +299,14 @@
           <datalist id="listeNatures"></datalist>
         </div>
       </div>
+      <div id="alerteDoublon"></div>
       <label>Ingrédients principaux</label>
-      <textarea id="f_principal" rows="2" placeholder="TOMATE / OIGNON / POULET"></textarea>
+      <textarea id="f_principal" rows="2" placeholder="TOMATE / OIGNON / POULET" oninput="majNouveauxIngr()"></textarea>
       <div class="aide">Séparez les ingrédients par « / » ou « - »</div>
       <label>Ingrédients facultatifs</label>
-      <textarea id="f_facultatif" rows="2"></textarea>
+      <textarea id="f_facultatif" rows="2" oninput="majNouveauxIngr()"></textarea>
+      <div id="nouveauxIngr"></div>
+      <datalist id="listeFamilles"></datalist>
       <label>Astuce</label>
       <textarea id="f_astuce" rows="2"></textarea>
       <label>Remarque</label>
@@ -289,6 +314,26 @@
       <div class="actions">
         <button class="btn btn-contour" onclick="fermer('fondForm')">Annuler</button>
         <button class="btn btn-noir" id="btnEnregistrer" onclick="enregistrer()">Enregistrer</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Changer la famille d'un ingrédient -->
+  <div class="fond" id="fondFamille" onclick="if(event.target===this)fermer('fondFamille')">
+    <div class="fenetre form" style="max-width:420px">
+      <div class="fenetre-tete">
+        <div>
+          <h2 id="titreFamille">Famille</h2>
+          <p>Enregistré dans l'onglet « Ingrédients » du Google Sheet</p>
+        </div>
+        <button class="rond" onclick="fermer('fondFamille')">✕</button>
+      </div>
+      <div class="liste-familles" id="choixFamilles"></div>
+      <label>Ou une nouvelle famille</label>
+      <input id="nouvelleFamille" placeholder="Ex : CHARCUTERIE" onkeydown="if(event.key==='Enter')validerFamille(this.value)">
+      <div class="actions">
+        <button class="btn btn-contour" onclick="fermer('fondFamille')">Annuler</button>
+        <button class="btn btn-noir" onclick="validerFamille(document.getElementById('nouvelleFamille').value)">Enregistrer</button>
       </div>
     </div>
   </div>
@@ -333,15 +378,26 @@
     const demoServeur = {
       getDonnees: () => ({ repas: demo, ingredients: demoIngredients }),
       enregistrerRepas: r => {
+        if (!r.forcer) {
+          const d = ressemblants(r.libelle, r.code).identique;
+          if (d) throw new Error('DOUBLON|' + d.code + '|' + d.libelle);
+        }
+        demoServeur.changerFamilles(r.familles || {});
         const i = demo.findIndex(x => x.code === r.code);
         const max = demo.reduce((m, x) => Math.max(m, parseInt(x.code.replace(/\D/g, ''), 10) || 0), 0);
         const n = {};
-        Object.keys(r).forEach(k => n[k] = String(r[k] || '').trim().toUpperCase());
+        ['code', 'libelle', 'nature', 'principal', 'facultatif', 'astuce', 'remarque'].forEach(k => n[k] = String(r[k] || '').trim().toUpperCase());
         n.code = i >= 0 ? demo[i].code : 'R' + String(max + 1).padStart(3, '0');
         if (i >= 0) demo[i] = n; else demo.push(n);
         return demoServeur.getDonnees();
       },
-      supprimerRepas: code => { demo = demo.filter(x => x.code !== code); return demoServeur.getDonnees(); }
+      supprimerRepas: code => { demo = demo.filter(x => x.code !== code); return demoServeur.getDonnees(); },
+      changerFamilles: familles => Object.keys(familles).forEach(nom => {
+        const i = demoIngredients.find(x => x.nom === nom || x.synonymes.includes(nom));
+        if (i) i.famille = familles[nom].toUpperCase();
+        else demoIngredients.push({ nom, famille: familles[nom].toUpperCase(), synonymes: [], icone: '' });
+      }),
+      changerFamille: ([nom, famille]) => { demoServeur.changerFamilles({ [nom]: famille }); return demoServeur.getDonnees(); }
     };
 
     // Appelle une fonction de Code.gs (ou sa version démo)
@@ -350,7 +406,8 @@
         try { ok(JSON.parse(JSON.stringify(demoServeur[fn](arg)))); } catch (e) { ko(e); }
         return;
       }
-      google.script.run.withSuccessHandler(ok).withFailureHandler(ko)[fn](arg);
+      const runner = google.script.run.withSuccessHandler(ok).withFailureHandler(ko);
+      Array.isArray(arg) ? runner[fn](...arg) : runner[fn](arg);
     }
 
     function charger() {
@@ -602,7 +659,8 @@
         const classe = choisis.has(c) ? 'actif' : possibles.has(c) ? '' : 'impossible';
         const libelle = [...libellesIngr[c]].join(' / ');
         return `<button class="puce ${classe}" onclick="basculer('${esc(c)}')" title="${esc(libelle)} : ${compteIngr[c]} repas">
-                  <span class="ico">${icone(c)}</span>${esc(libelle)}<span class="nb">${compteIngr[c]}</span></button>`;
+                  <span class="ico">${icone(c)}</span>${esc(libelle)}<span class="nb">${compteIngr[c]}</span>
+                  <span class="crayon" title="Changer de famille" onclick="event.stopPropagation();ouvrirFamille('${esc(c)}')">✏️</span></button>`;
       };
       const nomFamille = f => f.charAt(0) + f.slice(1).toLowerCase();
 
@@ -704,20 +762,206 @@
       document.getElementById('titreForm').textContent = code ? 'Modifier ' + (r.libelle || code) : 'Nouveau repas';
       ['code', 'libelle', 'nature', 'principal', 'facultatif', 'astuce', 'remarque']
         .forEach(c => document.getElementById('f_' + c).value = r[c] || '');
+      famillesForm = {};
+      verifierDoublon();
+      majNouveauxIngr();
       document.getElementById('fondForm').classList.add('ouvert');
       document.getElementById('f_libelle').focus();
     }
 
-    function enregistrer() {
+    function enregistrer(forcer) {
       const data = {};
       ['code', 'libelle', 'nature', 'principal', 'facultatif', 'astuce', 'remarque']
         .forEach(c => data[c] = document.getElementById('f_' + c).value);
       if (!data.libelle.trim()) { toast('Le nom du repas est obligatoire'); return; }
+      // Repas au nom identique : on demande confirmation avant d'enregistrer
+      const identique = ressemblants(data.libelle, data.code).identique;
+      if (identique && !forcer) { afficherAlerteDoublon(identique, true); return; }
+      data.forcer = !!forcer;
+      // Familles choisies pour les nouveaux ingrédients
+      data.familles = {};
+      nouveauxIngredients().forEach(c => data.familles[c] = (famillesForm[c] || '').trim().toUpperCase());
       const btn = document.getElementById('btnEnregistrer');
       btn.disabled = true;
       serveur('enregistrerRepas', data,
         l => { btn.disabled = false; fermer('fondForm'); maj(l); toast('✓ Repas enregistré'); },
-        e => { btn.disabled = false; erreur(e); });
+        e => {
+          btn.disabled = false;
+          const m = String(e && e.message || e).match(/DOUBLON\|([^|]*)\|(.*)/);
+          if (m) afficherAlerteDoublon({ code: m[1], libelle: m[2] }, true);
+          else erreur(e);
+        });
+    }
+
+    // ---------- Doublons ----------
+
+    // Petits mots ignorés quand on compare deux noms de repas (même liste que Code.gs)
+    const MOTS_VIDES = ['a', 'au', 'aux', 'la', 'le', 'les', 'l', 'de', 'du', 'des', 'd', 'avec', 'et', 'en', 'sauce'];
+
+    // Mots nettoyés d'un nom : sans accents ni petits mots, au singulier, synonymes remplacés
+    function motsRepas(libelle) {
+      const mots = norm(libelle).replace(/[^a-z0-9]+/g, ' ').split(' ')
+        .filter(m => m && !MOTS_VIDES.includes(m))
+        .map(m => {
+          const syn = SYNONYMES[m.toUpperCase()];
+          if (syn && syn.indexOf(' ') < 0) m = norm(syn);
+          return m.length > 3 ? m.replace(/[sx]$/, '') : m;
+        });
+      return [...new Set(mots)].sort();
+    }
+
+    // Nombre de lettres à changer pour passer d'un mot à l'autre (une inversion de 2 lettres compte pour 1)
+    function distance(a, b) {
+      const d = Array.from({ length: a.length + 1 }, (_, i) => [i]);
+      for (let j = 1; j <= b.length; j++) d[0][j] = j;
+      for (let i = 1; i <= a.length; i++) for (let j = 1; j <= b.length; j++) {
+        d[i][j] = Math.min(d[i - 1][j] + 1, d[i][j - 1] + 1, d[i - 1][j - 1] + (a[i - 1] === b[j - 1] ? 0 : 1));
+        if (i > 1 && j > 1 && a[i - 1] === b[j - 2] && a[i - 2] === b[j - 1]) d[i][j] = Math.min(d[i][j], d[i - 2][j - 2] + 1);
+      }
+      return d[a.length][b.length];
+    }
+
+    // Deux mots « presque pareils » : tolérance selon la longueur
+    function motProche(a, b) {
+      const tol = Math.min(a.length, b.length) >= 6 ? 2 : Math.min(a.length, b.length) >= 4 ? 1 : 0;
+      return distance(a, b) <= tol;
+    }
+
+    // Même nombre de mots et chaque mot a un « presque pareil » dans l'autre nom
+    function nomsProches(m1, m2) {
+      if (!m1.length || m1.length !== m2.length) return false;
+      const restants = [...m2];
+      return m1.every(a => {
+        const i = restants.findIndex(b => motProche(a, b));
+        if (i < 0) return false;
+        restants.splice(i, 1);
+        return true;
+      });
+    }
+
+    // Repas existants identiques (niveau 1) ou proches par faute de frappe (niveau 2)
+    function ressemblants(libelle, code) {
+      const mots = motsRepas(libelle);
+      const cle = mots.join(' ');
+      let identique = null; const proches = [];
+      if (!cle) return { identique, proches };
+      repas.forEach(r => {
+        if (code && r.code === code) return;
+        const autres = motsRepas(r.libelle);
+        if (autres.join(' ') === cle) identique = identique || r;
+        else if (nomsProches(mots, autres)) proches.push(r);
+      });
+      return { identique, proches };
+    }
+
+    function afficherAlerteDoublon(r, aConfirmer) {
+      document.getElementById('alerteDoublon').innerHTML = `
+        <div class="alerte forte">⚠️ <span>Ce repas existe déjà : <b>${esc(r.libelle)}</b> (${esc(r.code)})</span>
+          <button class="btn btn-contour" onclick="fermer('fondForm');voir('${esc(r.code)}')">Ouvrir ce repas</button>
+          ${aConfirmer ? `<button class="btn btn-noir" onclick="enregistrer(true)">Enregistrer quand même</button>` : ''}
+        </div>`;
+    }
+
+    // Vérification en direct pendant la frappe du nom
+    function verifierDoublon() {
+      const zone = document.getElementById('alerteDoublon');
+      const { identique, proches } = ressemblants(document.getElementById('f_libelle').value, document.getElementById('f_code').value);
+      if (identique) return afficherAlerteDoublon(identique, false);
+      zone.innerHTML = proches.length ? `
+        <div class="alerte douce">🤔 <span>Vouliez-vous dire ${proches.slice(0, 3).map(r =>
+          `<b>${esc(r.libelle)}</b> (${esc(r.code)})`).join(', ')} ?</span>
+          <button class="btn btn-contour" onclick="fermer('fondForm');voir('${esc(proches[0].code)}')">Ouvrir</button>
+        </div>` : '';
+    }
+
+    // Liste des doublons déjà présents dans la feuille
+    function afficherDoublons() {
+      const paires = [];
+      repas.forEach((a, i) => repas.slice(i + 1).forEach(b => {
+        const ma = motsRepas(a.libelle), mb = motsRepas(b.libelle);
+        if (ma.join(' ') === mb.join(' ')) paires.push([a, b, 'Identiques']);
+        else if (nomsProches(ma, mb)) paires.push([a, b, 'Faute de frappe ?']);
+      }));
+      const lien = r => `<button class="pilule" onclick="voir('${esc(r.code)}')">${esc(r.libelle)} <small>${esc(r.code)}</small></button>`;
+      document.getElementById('detail').innerHTML = `
+        <div class="fenetre-tete">
+          <div><h2>Doublons possibles</h2><p>${paires.length ? paires.length + ' paire(s) à vérifier' : 'Aucun doublon trouvé 🎉'}</p></div>
+          <button class="rond" onclick="fermer('fondDetail')">✕</button>
+        </div>
+        ${paires.map(([a, b, type]) => `
+          <div class="bloc"><h5>${type}</h5><div class="pilules">${lien(a)}${lien(b)}</div></div>`).join('')}`;
+      document.getElementById('fondDetail').classList.add('ouvert');
+    }
+
+    // ---------- Familles des nouveaux ingrédients (formulaire) ----------
+
+    let famillesForm = {};   // ingrédient -> famille choisie dans le formulaire
+
+    // Famille proposée pour un ingrédient inconnu (mêmes règles que Code.gs)
+    const FAMILLES_AUTO = [
+      [/poulet|dinde|escalope|viande|steak|boeuf|agneau|mouton|kefta|merguez|poisson|thon|sardine|crevette|calamar|oeuf|burger|foie/, 'PROTÉINES'],
+      [/concentr|harissa|hrous|piment|epice|cumin|poivre\b|\bsel\b|sauce|ketchup|mayonnaise|moutarde|huile|\bail\b|tabel|karouia/, 'ÉPICES & SAUCES'],
+      [/fromage|lait|creme|yaourt|beurre|mozzarella|gruyere|ricotta/, 'PRODUITS LAITIERS'],
+      [/pate|spaghetti|macaroni|riz|couscous|pain|baguette|pomme de terre|patate|frite|semoule|farine|mlewi|tabouna|feuille de brik/, 'FÉCULENTS'],
+      [/citron|pomme\b|orange|banane|fraise|raisin|datte/, 'FRUITS'],
+      [/tomate|oignon|poivron|carotte|courgette|aubergine|salade|laitue|epinard|champignon|mais|concombre|persil|coriandre|menthe|petit pois|haricot|pois chiche|lentille|feve|navet|chou|celeri|olive/, 'LÉGUMES']
+    ];
+
+    function devinerFamille(nom) {
+      const f = FAMILLES_AUTO.find(([re]) => re.test(norm(nom)));
+      return f ? f[1] : '';
+    }
+
+    // Toutes les familles connues (pour les listes de choix)
+    function famillesConnues() {
+      const toutes = FAMILLES.map(([f]) => f);
+      Object.values(FAMILLE).forEach(f => { if (f && !toutes.includes(f)) toutes.push(f); });
+      return toutes;
+    }
+
+    // Ingrédients du formulaire absents de l'onglet « Ingrédients »
+    function nouveauxIngredients() {
+      const txt = document.getElementById('f_principal').value + ' / ' + document.getElementById('f_facultatif').value;
+      return [...new Set(decouper(txt).map(canon))].filter(c => !SYNONYMES[c] && !FAMILLE[c]);
+    }
+
+    function majNouveauxIngr() {
+      const zone = document.getElementById('nouveauxIngr');
+      document.getElementById('listeFamilles').innerHTML = famillesConnues().map(f => `<option value="${esc(f)}">`).join('');
+      const nouveaux = nouveauxIngredients();
+      nouveaux.forEach(c => { if (!(c in famillesForm)) famillesForm[c] = devinerFamille(c); });
+      zone.innerHTML = nouveaux.length ? `
+        <div class="nouveaux">
+          <h5>Nouveaux ingrédients : choisissez leur famille</h5>
+          ${nouveaux.map(c => `
+            <div class="ligne-ingr"><span>${icone(c)} ${esc(c)}</span>
+              <input list="listeFamilles" value="${esc(famillesForm[c])}" placeholder="📦 À classer"
+                     oninput="famillesForm['${esc(c)}'] = this.value" autocomplete="off">
+            </div>`).join('')}
+        </div>` : '';
+    }
+
+    // ---------- Changer la famille d'un ingrédient (crayon ✏️) ----------
+
+    let ingrFamille = '';
+
+    function ouvrirFamille(c) {
+      ingrFamille = c;
+      document.getElementById('titreFamille').textContent = `${icone(c)} ${c}`;
+      document.getElementById('nouvelleFamille').value = '';
+      const actuelle = FAMILLE[c] || '';
+      document.getElementById('choixFamilles').innerHTML = famillesConnues().concat(['']).map(f => `
+        <button class="pilule ${f === actuelle ? 'actif' : ''}" onclick="validerFamille('${esc(f)}')">
+          ${f ? emojiFamille(f) + ' ' + esc(f.charAt(0) + f.slice(1).toLowerCase()) : '📦 À classer'}</button>`).join('');
+      emojis(document.getElementById('fondFamille'));
+      document.getElementById('fondFamille').classList.add('ouvert');
+    }
+
+    function validerFamille(f) {
+      f = String(f || '').trim().toUpperCase();
+      fermer('fondFamille');
+      serveur('changerFamille', [ingrFamille, f],
+        l => { maj(l); toast(`✓ ${ingrFamille} → ${f || 'À classer'}`); }, erreur);
     }
 
     function supprimer(code) {
@@ -749,7 +993,7 @@
     function erreur(e) { toast('Erreur : ' + (e && e.message ? e.message : e)); }
 
     document.addEventListener('keydown', e => {
-      if (e.key === 'Escape') ['fondDetail', 'fondForm', 'fondConfirm'].forEach(fermer);
+      if (e.key === 'Escape') ['fondDetail', 'fondForm', 'fondConfirm', 'fondFamille'].forEach(fermer);
     });
 
     charger();
