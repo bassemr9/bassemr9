@@ -194,7 +194,70 @@
                font-size: 13px; font-weight: 500; z-index: 50; transform: translateY(100px); opacity: 0; transition: all .3s ease; }
     #message.visible { transform: none; opacity: 1; }
 
+    /* ---------- Planning de la semaine ---------- */
+    .planning-zone { margin-bottom: 8px; padding: 10px 12px 8px; border-radius: 18px; }
+    /* Sur ordinateur, le calendrier reste visible en haut quand on défile dans la liste des repas : on peut toujours y déposer une carte */
+    @media (min-width: 900px) { .planning-zone { position: sticky; top: 0; z-index: 4; } }
+    .semaine-barre { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; margin-bottom: 8px; }
+    .semaine-titre { font-weight: 700; font-size: 14px; min-width: 190px; text-align: center; }
+    .personnes { display: inline-flex; align-items: center; gap: 6px; font-size: 13px; padding: 3px 8px; border: 1px solid var(--bord); border-radius: 999px; }
+    .personnes .rond { width: 24px; height: 24px; font-size: 14px; }
+    .personnes b { min-width: 18px; text-align: center; }
+    .planning { display: grid; grid-template-columns: repeat(7, minmax(0, 1fr)); gap: 8px; }
+    .jour { background: var(--app); border-radius: 14px; padding: 6px; display: flex; flex-direction: column; gap: 5px; min-width: 0; }
+    .jour.aujourdhui { box-shadow: inset 0 0 0 2px var(--noir); }
+    .jour-tete { display: flex; justify-content: space-between; align-items: baseline; font-size: 12px; padding: 0 3px; }
+    .jour-tete small { color: var(--texte-3); font-size: 10.5px; }
+    .creneau { position: relative; border-radius: 10px; padding: 5px 7px; display: flex; flex-direction: column; gap: 2px;
+               transition: all .12s; border: 1.5px solid transparent; min-width: 0; flex: 1 0 auto; min-height: 78px; }
+    .creneau.vide { border: 1.5px dashed #cfd2d6; cursor: pointer; background: rgba(255,255,255,.5); }
+    .creneau.vide:hover { border-color: var(--noir); background: #fff; }
+    .creneau .plus { font-size: 18px; color: var(--texte-3); align-self: center; line-height: 1; margin: auto 0; }
+    .creneau.vide:hover .plus { color: var(--noir); }
+    .creneau.plein { cursor: grab; }
+    .creneau.plein:hover { box-shadow: 0 4px 12px rgba(0,0,0,.1); }
+    .creneau.survol { border-color: var(--vert) !important; background: var(--vert-clair) !important; }
+    .creneau .srv { font-size: 9.5px; text-transform: uppercase; letter-spacing: .05em; color: var(--texte-3); font-weight: 700; }
+    .creneau .nom { font-size: 12px; font-weight: 600; line-height: 1.25; overflow: hidden; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; }
+    .creneau .outils { display: flex; gap: 4px; margin-top: auto; }
+    .mini { font-size: 10.5px; font-weight: 600; padding: 1px 7px; border-radius: 999px; background: rgba(255,255,255,.85); color: var(--texte-2); line-height: 18px; }
+    .mini:hover { background: var(--noir); color: #fff; }
+    .mini.perso { color: var(--vert); }
+    .liste-choix { display: flex; flex-direction: column; gap: 6px; max-height: 55vh; overflow: auto; }
+    .choix { display: flex; align-items: center; gap: 10px; text-align: left; padding: 8px 10px; border-radius: 12px; background: var(--app); }
+    .choix:hover { background: #e9ebee; }
+    .choix-nom { flex: 1; min-width: 0; display: flex; flex-direction: column; font-size: 13px; }
+    .choix-nom small { color: var(--texte-2); font-size: 11.5px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .deja { font-size: 10.5px; color: #8a5a00; background: #fff6e0; padding: 2px 8px; border-radius: 999px; white-space: nowrap; }
+    .stepper { display: flex; align-items: center; justify-content: center; gap: 16px; margin: 14px 0 6px; font-size: 26px; }
+    .stepper b { min-width: 40px; }
+    .cse-groupe { border-radius: 14px; padding: 8px 10px; margin-bottom: 8px; }
+    .cse-groupe h4 { margin: 0 0 4px; font-size: 12.5px; }
+    .ligne-cse { display: flex; align-items: center; gap: 9px; padding: 5px 4px; font-size: 13.5px; cursor: pointer; border-radius: 8px; }
+    .ligne-cse:hover { background: rgba(255,255,255,.6); }
+    .ligne-cse input { width: 17px; height: 17px; accent-color: var(--vert); flex-shrink: 0; }
+    .ligne-cse .nom { flex: 1; font-weight: 600; }
+    .ligne-cse .qte { font-weight: 700; white-space: nowrap; }
+    .ligne-cse .qte.manque { color: #b45309; font-weight: 600; font-style: italic; }
+    .ligne-cse.fait .nom, .ligne-cse.fait .qte { text-decoration: line-through; opacity: .45; }
+    .note-cse { font-size: 12px; color: var(--texte-2); margin: 0 0 8px; }
+    .case-cse { display: flex; align-items: center; gap: 7px; font-size: 12.5px; margin: 0 0 8px; cursor: pointer; }
+    @media print {
+      body > *:not(#fondCourses) { display: none !important; }
+      #fondCourses { position: static; background: none; backdrop-filter: none; display: block !important; padding: 0; }
+      #fondCourses .fenetre { box-shadow: none; max-height: none; max-width: none; }
+      #fondCourses .actions, #fondCourses .rond, #fondCourses .mini, #fondCourses .case-cse { display: none !important; }
+    }
+    @media (max-width: 1000px) { .planning { grid-template-columns: repeat(4, minmax(0, 1fr)); } }
     @media (max-width: 640px) {
+      .planning { grid-template-columns: 1fr; }
+      .jour { flex-direction: row; align-items: stretch; }
+      .jour-tete { flex-direction: column; justify-content: center; align-items: center; width: 52px; flex-shrink: 0; }
+      .semaine-barre { justify-content: space-between; }
+      .semaine-titre { flex: 1 1 100%; order: -1; text-align: left; font-size: 15px; }
+      .semaine-barre .espace { display: none; }
+      #vuePlanning .btn { flex: 1 1 100%; justify-content: center; }
+      .creneau { flex: 1 1 0; min-height: 84px; }
       .rail { display: none; }
       .contenu { padding: 12px; }
       .recherche { order: 5; flex-basis: 100%; }
@@ -220,6 +283,9 @@
       <button class="rail-btn actif" data-titre="Tous les repas" onclick="toutEffacer()">
         <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7" rx="2"/><rect x="14" y="3" width="7" height="7" rx="2"/><rect x="3" y="14" width="7" height="7" rx="2"/><rect x="14" y="14" width="7" height="7" rx="2"/></svg>
       </button>
+      <button class="rail-btn" data-titre="Planning de la semaine" onclick="basculerVue('semaine')">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/></svg>
+      </button>
       <button class="rail-btn" data-titre="Nouveau repas" onclick="ouvrirFormulaire()">
         <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M12 5v14M5 12h14"/></svg>
       </button>
@@ -237,6 +303,10 @@
     <main class="contenu">
       <header class="entete">
         <div class="marque">Mes Repas<small>idée repas · carnet de recettes</small></div>
+        <div class="pilules" id="vues">
+          <button class="pilule actif" data-vue="repas" onclick="basculerVue('repas')">🍽️ Repas</button>
+          <button class="pilule" data-vue="semaine" onclick="basculerVue('semaine')">📅 Semaine</button>
+        </div>
         <div class="recherche">
           <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg>
           <input id="recherche" placeholder="Rechercher un plat ou un ingrédient…" oninput="afficher()" autocomplete="off">
@@ -248,6 +318,23 @@
         </div>
         <button class="btn btn-noir" onclick="ouvrirFormulaire()">＋ Nouveau</button>
       </header>
+
+      <!-- Calendrier de la semaine (vue « Semaine ») -->
+      <section class="panneau planning-zone" id="vuePlanning" hidden>
+        <div class="semaine-barre">
+          <button class="rond" onclick="changerSemaine(-1)" title="Semaine précédente">‹</button>
+          <div class="semaine-titre" id="semaineTitre"></div>
+          <button class="rond" onclick="changerSemaine(1)" title="Semaine suivante">›</button>
+          <button class="pilule" onclick="semaineCourante()">Aujourd'hui</button>
+          <span class="espace"></span>
+          <div class="personnes" title="Nombre de personnes par défaut (modifiable pour chaque repas)">👥
+            <button class="rond" onclick="changerPersonnes(-1)">−</button><b id="persDefaut">4</b><button class="rond" onclick="changerPersonnes(1)">+</button>
+          </div>
+          <button class="btn btn-noir" onclick="ouvrirCourses()">🛒 Liste de courses <span id="nbPlan"></span></button>
+        </div>
+        <div class="planning" id="planning"></div>
+        <div class="aide" style="margin-top:6px">Glissez un repas de la liste ci-dessous sur un créneau, ou cliquez sur ＋. Glissez un créneau pour le déplacer ou l'échanger.</div>
+      </section>
 
       <!-- Bande unique : catégories + tous les ingrédients (liste dynamique, retour à la ligne) -->
       <section class="panneau bande stats">
@@ -341,6 +428,58 @@
     </div>
   </div>
 
+  <!-- Choisir un repas pour un créneau -->
+  <div class="fond" id="fondChoix" onclick="if(event.target===this)fermer('fondChoix')">
+    <div class="fenetre">
+      <div class="fenetre-tete">
+        <div><h2 id="titreChoix">Choisir un repas</h2><p id="sousChoix"></p></div>
+        <button class="rond" onclick="fermer('fondChoix')">✕</button>
+      </div>
+      <div class="recherche" style="margin-bottom:10px">
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg>
+        <input id="rechercheChoix" placeholder="Rechercher un repas ou un ingrédient…" oninput="listeChoix()" autocomplete="off">
+      </div>
+      <div class="liste-choix" id="listeChoix"></div>
+    </div>
+  </div>
+
+  <!-- Nombre de personnes pour un repas -->
+  <div class="fond" id="fondPers" onclick="if(event.target===this)fermer('fondPers')">
+    <div class="fenetre" style="max-width:340px;text-align:center">
+      <h2 style="margin:0 0 4px;font-size:18px">👥 Nombre de personnes</h2>
+      <div style="font-size:12.5px;color:var(--texte-2)" id="sousPers"></div>
+      <div class="stepper"><button class="rond" onclick="ajusterPers(-1)">−</button><b id="valPers">4</b><button class="rond" onclick="ajusterPers(1)">+</button></div>
+      <div class="actions" style="justify-content:center">
+        <button class="btn btn-contour" onclick="validerPers('')">Valeur par défaut</button>
+        <button class="btn btn-noir" onclick="validerPers(persEdition)">OK</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Liste de courses -->
+  <div class="fond" id="fondCourses" onclick="if(event.target===this)fermer('fondCourses')">
+    <div class="fenetre" style="max-width:640px" id="courses"></div>
+  </div>
+
+  <!-- Quantité par personne d'un ingrédient (au-dessus de la liste de courses) -->
+  <div class="fond" id="fondQte" onclick="if(event.target===this)fermer('fondQte')">
+    <div class="fenetre form" style="max-width:380px">
+      <div class="fenetre-tete">
+        <div><h2 id="titreQte">Quantité</h2><p>Quantité approximative par personne, enregistrée dans l'onglet « Ingrédients »</p></div>
+        <button class="rond" onclick="fermer('fondQte')">✕</button>
+      </div>
+      <div class="deux">
+        <div><label>Quantité par personne</label><input id="qteVal" type="number" min="0" step="any" inputmode="decimal" placeholder="150"></div>
+        <div><label>Unité</label><input id="qteUnite" list="listeUnites" placeholder="g" autocomplete="off">
+          <datalist id="listeUnites"><option value="g"><option value="kg"><option value="ml"><option value="l"><option value="pièce"></datalist></div>
+      </div>
+      <div class="actions">
+        <button class="btn btn-contour" onclick="fermer('fondQte')">Annuler</button>
+        <button class="btn btn-noir" onclick="validerQte()">Enregistrer</button>
+      </div>
+    </div>
+  </div>
+
   <!-- Confirmation -->
   <div class="fond" id="fondConfirm" onclick="if(event.target===this)fermer('fondConfirm')">
     <div class="fenetre" style="max-width:380px;text-align:center">
@@ -373,13 +512,40 @@
     ];
     // Contenu de démonstration de l'onglet "Ingrédients"
     const demoIngredients = [
-      ['TOMATE', 'LÉGUMES', ''], ['OIGNON', 'LÉGUMES', 'BSAL'], ['POIVRON', 'LÉGUMES', 'FILFIL'],
-      ['POULET', 'PROTÉINES', 'DJEJ'], ['POISSON', 'PROTÉINES', ''], ['THON', 'PROTÉINES', ''], ['OEUF', 'PROTÉINES', ''],
-      ['BURGER', 'PROTÉINES', ''], ['STEAK SANS OS', 'PROTÉINES', ''], ['FROMAGE', 'PRODUITS LAITIERS', ''],
-      ['HROUS', 'ÉPICES & SAUCES', ''], ['TOMATE CONCENTRE', 'ÉPICES & SAUCES', '']
-    ].map(([nom, famille, syn]) => ({ nom, famille, synonymes: syn ? [syn] : [], icone: '' }));
+      ['TOMATE', 'LÉGUMES', '', 100, 'g'], ['OIGNON', 'LÉGUMES', 'BSAL', 50, 'g'], ['POIVRON', 'LÉGUMES', 'FILFIL', 60, 'g'],
+      ['POULET', 'PROTÉINES', 'DJEJ', 150, 'g'], ['POISSON', 'PROTÉINES', '', 180, 'g'], ['THON', 'PROTÉINES', '', 50, 'g'],
+      ['OEUF', 'PROTÉINES', '', 1, 'pièce'], ['BURGER', 'PROTÉINES', '', 1, 'pièce'], ['STEAK SANS OS', 'PROTÉINES', '', 150, 'g'],
+      ['FROMAGE', 'PRODUITS LAITIERS', '', 40, 'g'], ['HROUS', 'ÉPICES & SAUCES', '', 5, 'g'], ['TOMATE CONCENTRE', 'ÉPICES & SAUCES', '', null, '']
+    ].map(([nom, famille, syn, qte, unite]) => ({ nom, famille, synonymes: syn ? [syn] : [], icone: '', qte, unite }));
+    // Planning de démonstration (semaine en cours) et nombre de personnes
+    let demoPers = 4;
+    let demoPlan = (() => {
+      const l0 = lundi(new Date());
+      const dj = n => { const d = new Date(l0); d.setDate(d.getDate() + n); return iso(d); };
+      return [[0, 'MIDI', 'R001'], [0, 'SOIR', 'R004'], [1, 'MIDI', 'R002'], [2, 'SOIR', 'R005'], [3, 'MIDI', 'R003'], [5, 'MIDI', 'R006']]
+        .map(([n, service, code]) => ({ date: dj(n), service, code, personnes: '' }));
+    })();
     const demoServeur = {
-      getDonnees: () => ({ repas: demo, ingredients: demoIngredients }),
+      getDonnees: () => ({ repas: demo, ingredients: demoIngredients, planning: demoPlan, personnes: demoPers }),
+      planifierRepas: ([date, service, code, pers]) => {
+        const e = demoPlan.find(x => x.date === date && x.service === service);
+        if (e) { e.code = code; e.personnes = pers || ''; } else demoPlan.push({ date, service, code, personnes: pers || '' });
+        return demoPlan;
+      },
+      retirerPlanning: ([date, service]) => (demoPlan = demoPlan.filter(x => !(x.date === date && x.service === service))),
+      deplacerPlanning: ([d1, s1, d2, s2]) => {
+        const a = demoPlan.find(x => x.date === d1 && x.service === s1), b = demoPlan.find(x => x.date === d2 && x.service === s2);
+        if (a && b) { [a.code, b.code] = [b.code, a.code]; [a.personnes, b.personnes] = [b.personnes, a.personnes]; }
+        else if (a) { a.date = d2; a.service = s2; }
+        return demoPlan;
+      },
+      definirPersonnes: n => (demoPers = n),
+      changerQuantite: ([nom, qte, unite]) => {
+        const i = demoIngredients.find(x => x.nom === nom || x.synonymes.includes(nom));
+        const q = qte === '' ? null : Number(qte);
+        if (i) { i.qte = q; i.unite = unite; } else demoIngredients.push({ nom, famille: '', synonymes: [], icone: '', qte: q, unite });
+        return demoServeur.getDonnees();
+      },
       enregistrerRepas: r => {
         if (!r.forcer) {
           const d = ressemblants(r.libelle, r.code).identique;
@@ -394,7 +560,11 @@
         if (i >= 0) demo[i] = n; else demo.push(n);
         return demoServeur.getDonnees();
       },
-      supprimerRepas: code => { demo = demo.filter(x => x.code !== code); return demoServeur.getDonnees(); },
+      supprimerRepas: code => {
+        demo = demo.filter(x => x.code !== code);
+        demoPlan = demoPlan.filter(x => x.code !== code);
+        return demoServeur.getDonnees();
+      },
       changerFamilles: familles => Object.keys(familles).forEach(nom => {
         const i = demoIngredients.find(x => x.nom === nom || x.synonymes.includes(nom));
         if (i) i.famille = familles[nom].toUpperCase();
@@ -424,6 +594,8 @@
       const d = Array.isArray(donnees) ? { repas: donnees, ingredients: [] } : (donnees || {});
       repas = d.repas || [];
       chargerIngredients(d.ingredients || []);
+      if (d.planning && !enCours) planning = d.planning;
+      if (d.personnes) personnesDefaut = d.personnes;
       const natures = [...new Set(repas.map(r => r.nature).filter(Boolean))].sort();
       if (natureChoisie && !natures.includes(natureChoisie)) natureChoisie = '';
       document.getElementById('listeNatures').innerHTML = natures.map(n => `<option value="${esc(n)}">`).join('');
@@ -485,6 +657,7 @@
 
     // Remplis depuis l'onglet "Ingrédients" du Google Sheet
     let SYNONYMES = {};   // nom ou synonyme -> nom de référence
+    let QTE = {};         // nom de référence -> { qte par personne, unite }
     let FAMILLE = {};     // nom de référence -> famille
     let ICONE_FEUILLE = {}; // nom de référence -> icône choisie dans la feuille
 
@@ -506,7 +679,7 @@
     try { replie = localStorage.getItem('ingredientsReplies') === '1'; } catch (e) {}
 
     function chargerIngredients(liste) {
-      SYNONYMES = {}; FAMILLE = {}; ICONE_FEUILLE = {};
+      SYNONYMES = {}; FAMILLE = {}; ICONE_FEUILLE = {}; QTE = {};
       liste.forEach(i => {
         const nom = String(i.nom || '').toUpperCase();
         if (!nom) return;
@@ -514,6 +687,7 @@
         (i.synonymes || []).forEach(s => SYNONYMES[String(s).toUpperCase()] = nom);
         if (i.famille) FAMILLE[nom] = String(i.famille).toUpperCase();
         if (i.icone) ICONE_FEUILLE[nom] = i.icone;
+        if (i.qte !== null && i.qte !== undefined && i.qte !== '') QTE[nom] = { qte: Number(i.qte), unite: i.unite || '' };
       });
     }
 
@@ -706,13 +880,13 @@
       afficherIngredients(liste, tous);
 
       const filtre = termes.length || choisis.size || natureChoisie;
-      document.getElementById('titreRes').textContent = filtre ? 'Résultats' : 'Tous les repas';
+      document.getElementById('titreRes').textContent = vue === 'semaine' ? 'Mes repas : glissez-les sur le calendrier' : filtre ? 'Résultats' : 'Tous les repas';
       document.getElementById('info').textContent = `${liste.length} sur ${repas.length}`;
 
       document.getElementById('liste').innerHTML = liste.map((r, n) => {
         const [vif, pastel] = couleurs(r.nature);
         return `
-        <article class="carte" style="background:${pastel};animation-delay:${Math.min(n, 12) * 25}ms" onclick="voir('${esc(r.code)}')">
+        <article class="carte" style="background:${pastel};animation-delay:${Math.min(n, 12) * 25}ms" draggable="true" ondragstart="glisserRepas(event,'${esc(r.code)}')" onclick="voir('${esc(r.code)}')">
           <div class="carte-tete">
             <span class="carte-ico" style="box-shadow:inset 0 0 0 1.5px ${vif}33">${emojiRepas(r)}</span>
             <span class="coche">✓</span>
@@ -726,11 +900,12 @@
            <div style="font-size:inherit;margin-top:12px"><button class="btn btn-contour" onclick="toutEffacer()">Réinitialiser les filtres</button></div></div>`;
 
       emojis(document.querySelector('.contenu'));
+      afficherPlanning();
     }
 
     // Remplace les emojis par des images Twemoji (identiques sur Windows, Mac et téléphone)
     function emojis(el) {
-      if (window.twemoji && el) twemoji.parse(el, { folder: 'svg', ext: '.svg', className: 'tw' });
+      if (window.twemoji && el) twemoji.parse(el, { folder: 'svg', ext: '.svg', className: 'tw', attributes: () => ({ draggable: 'false' }) });
     }
 
     function voir(code) {
@@ -996,8 +1171,352 @@
     function erreur(e) { toast('Erreur : ' + (e && e.message ? e.message : e)); }
 
     document.addEventListener('keydown', e => {
-      if (e.key === 'Escape') ['fondDetail', 'fondForm', 'fondConfirm', 'fondFamille'].forEach(fermer);
+      if (e.key === 'Escape') ['fondDetail', 'fondForm', 'fondConfirm', 'fondFamille', 'fondChoix', 'fondPers', 'fondQte', 'fondCourses'].forEach(fermer);
     });
+
+    // ================= Planning de la semaine =================
+
+    const JOURS = ['Lun', 'Mar', 'Mer', 'Jeu', 'Ven', 'Sam', 'Dim'];
+    const JOURS_LONGS = ['Lundi', 'Mardi', 'Mercredi', 'Jeudi', 'Vendredi', 'Samedi', 'Dimanche'];
+    const MOIS = ['janvier', 'février', 'mars', 'avril', 'mai', 'juin', 'juillet', 'août', 'septembre', 'octobre', 'novembre', 'décembre'];
+    const MOIS_COURTS = ['janv.', 'févr.', 'mars', 'avr.', 'mai', 'juin', 'juil.', 'août', 'sept.', 'oct.', 'nov.', 'déc.'];
+    const SERVICES = [['MIDI', 'Midi', '☀️'], ['SOIR', 'Soir', '🌙']];
+
+    let vue = 'repas';
+    let planning = [];          // [{ date: 'AAAA-MM-JJ', service: 'MIDI'|'SOIR', code, personnes }]
+    let personnesDefaut = 4;
+    let enCours = 0;            // enregistrements du planning en attente
+    let semaineDebut = lundi(new Date());
+
+    function lundi(d) {
+      const x = new Date(d.getFullYear(), d.getMonth(), d.getDate());
+      x.setDate(x.getDate() - ((x.getDay() + 6) % 7));
+      return x;
+    }
+    function iso(d) { return d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0') + '-' + String(d.getDate()).padStart(2, '0'); }
+    function jourN(n) { const d = new Date(semaineDebut); d.setDate(d.getDate() + n); return d; }
+    function dateDe(s) { return new Date(s + 'T12:00:00'); }
+    function dateLongue(d) { return JOURS_LONGS[(d.getDay() + 6) % 7] + ' ' + d.getDate() + ' ' + MOIS[d.getMonth()]; }
+    function titreSemaine() {
+      const a = jourN(0), b = jourN(6);
+      return a.getMonth() === b.getMonth()
+        ? `Semaine du ${a.getDate()} au ${b.getDate()} ${MOIS[b.getMonth()]}`
+        : `Semaine du ${a.getDate()} ${MOIS[a.getMonth()]} au ${b.getDate()} ${MOIS[b.getMonth()]}`;
+    }
+
+    function entree(date, service) { return planning.find(e => e.date === date && e.service === service); }
+    function repasDe(code) { return repas.find(r => r.code === code); }
+    function entreesSemaine() {
+      const dates = new Set([0, 1, 2, 3, 4, 5, 6].map(n => iso(jourN(n))));
+      return planning.filter(e => dates.has(e.date) && repasDe(e.code));
+    }
+
+    function basculerVue(v) {
+      vue = v;
+      document.getElementById('vuePlanning').hidden = v !== 'semaine';
+      document.querySelectorAll('#vues .pilule').forEach(b => b.classList.toggle('actif', b.dataset.vue === v));
+      afficher();
+    }
+
+    function changerSemaine(n) { semaineDebut = jourN(7 * n); afficherPlanning(); }
+    function semaineCourante() { semaineDebut = lundi(new Date()); afficherPlanning(); }
+
+    function afficherPlanning() {
+      if (vue !== 'semaine') return;
+      document.getElementById('semaineTitre').textContent = titreSemaine();
+      document.getElementById('persDefaut').textContent = personnesDefaut;
+      const auj = iso(new Date());
+      document.getElementById('planning').innerHTML = JOURS.map((nom, n) => {
+        const d = jourN(n), dt = iso(d);
+        const creneaux = SERVICES.map(([code, lib, ico]) => {
+          const e = entree(dt, code), r = e && repasDe(e.code);
+          const cible = `data-date="${dt}" data-service="${code}" ondragover="survol(event,true)" ondragleave="survol(event,false)" ondrop="deposer(event,'${dt}','${code}')"`;
+          if (!r) return `<div class="creneau vide" ${cible} onclick="ouvrirChoix('${dt}','${code}')"><span class="srv">${ico} ${lib}</span><span class="plus">＋</span></div>`;
+          const [, pastel] = couleurs(r.nature);
+          const p = e.personnes || personnesDefaut;
+          return `<div class="creneau plein" style="background:${pastel}" draggable="true" ${cible} ondragstart="glisserCreneau(event,'${dt}','${code}')" onclick="voir('${esc(r.code)}')">
+                    <span class="srv">${ico} ${lib}</span>
+                    <span class="nom">${emojiRepas(r)} ${esc(r.libelle)}</span>
+                    <span class="outils">
+                      <button class="mini ${e.personnes ? 'perso' : ''}" title="Nombre de personnes" onclick="event.stopPropagation();ouvrirPers('${dt}','${code}')">👥 ${p}</button>
+                      <button class="mini" title="Retirer du planning" onclick="event.stopPropagation();retirer('${dt}','${code}')">✕</button>
+                    </span>
+                  </div>`;
+        }).join('');
+        return `<div class="jour ${dt === auj ? 'aujourdhui' : ''}"><div class="jour-tete"><b>${nom}</b><small>${d.getDate()} ${MOIS_COURTS[d.getMonth()]}</small></div>${creneaux}</div>`;
+      }).join('');
+      const nb = entreesSemaine().length;
+      document.getElementById('nbPlan').textContent = nb ? '(' + nb + ')' : '';
+      emojis(document.getElementById('vuePlanning'));
+    }
+
+    // Enregistre une modification du planning : on l'affiche tout de suite, puis on l'envoie au Google Sheet
+    function appelPlanning(fn, arg, local) {
+      local();
+      enCours++;
+      afficherPlanning();
+      serveur(fn, arg,
+        res => { enCours--; if (!enCours) { planning = res; afficherPlanning(); } },
+        e => { enCours--; erreur(e); charger(); });
+    }
+
+    function planifier(date, service, code, pers) {
+      appelPlanning('planifierRepas', [date, service, code, pers || ''], () => {
+        const e = entree(date, service);
+        if (e) { e.code = code; e.personnes = pers || ''; } else planning.push({ date, service, code, personnes: pers || '' });
+      });
+    }
+    function retirer(date, service) {
+      appelPlanning('retirerPlanning', [date, service], () => { planning = planning.filter(e => !(e.date === date && e.service === service)); });
+    }
+    function deplacer(d1, s1, d2, s2) {
+      appelPlanning('deplacerPlanning', [d1, s1, d2, s2], () => {
+        const a = entree(d1, s1), b = entree(d2, s2);
+        if (a && b) { [a.code, b.code] = [b.code, a.code]; [a.personnes, b.personnes] = [b.personnes, a.personnes]; }
+        else if (a) { a.date = d2; a.service = s2; }
+      });
+    }
+
+    // ----- Glisser-déposer -----
+    function glisserRepas(ev, code) {
+      ev.dataTransfer.setData('text/plain', JSON.stringify({ t: 'repas', code }));
+      ev.dataTransfer.effectAllowed = 'copyMove';
+    }
+    function glisserCreneau(ev, date, service) {
+      ev.dataTransfer.setData('text/plain', JSON.stringify({ t: 'creneau', date, service }));
+      ev.dataTransfer.effectAllowed = 'move';
+    }
+    function survol(ev, on) {
+      ev.preventDefault();
+      if (!on && ev.currentTarget.contains(ev.relatedTarget)) return;
+      ev.currentTarget.classList.toggle('survol', on);
+    }
+    function deposer(ev, date, service) {
+      ev.preventDefault();
+      ev.currentTarget.classList.remove('survol');
+      let d;
+      try { d = JSON.parse(ev.dataTransfer.getData('text/plain')); } catch (e) { return; }
+      if (d.t === 'repas') planifier(date, service, d.code);
+      else if (d.t === 'creneau' && !(d.date === date && d.service === service)) deplacer(d.date, d.service, date, service);
+    }
+
+    // ----- Choisir un repas pour un créneau (bouton ＋) -----
+    let choixCreneau = null;
+    function ouvrirChoix(date, service) {
+      choixCreneau = { date, service };
+      const [, lib, ico] = SERVICES.find(x => x[0] === service);
+      document.getElementById('titreChoix').textContent = `${ico} ${lib} · ${dateLongue(dateDe(date))}`;
+      document.getElementById('sousChoix').textContent = 'Choisissez le repas à préparer';
+      document.getElementById('rechercheChoix').value = '';
+      listeChoix();
+      document.getElementById('fondChoix').classList.add('ouvert');
+      document.getElementById('rechercheChoix').focus();
+    }
+    function listeChoix() {
+      const q = norm(document.getElementById('rechercheChoix').value).split(/\s+/).filter(Boolean);
+      // Repas déjà prévus cette semaine (pour varier les menus)
+      const prevu = {};
+      entreesSemaine().forEach(e => {
+        const j = JOURS[(dateDe(e.date).getDay() + 6) % 7];
+        (prevu[e.code] = prevu[e.code] || []).push(j + ' ' + (e.service === 'MIDI' ? 'midi' : 'soir'));
+      });
+      const liste = repas
+        .filter(r => { const t = norm(r.libelle + ' ' + r.principal + ' ' + r.facultatif + ' ' + r.nature); return q.every(w => t.includes(w)); })
+        .sort((a, b) => a.libelle.localeCompare(b.libelle));
+      document.getElementById('listeChoix').innerHTML = liste.map(r => `
+        <button class="choix" onclick="choisirRepas('${esc(r.code)}')">
+          <span class="carte-ico">${emojiRepas(r)}</span>
+          <span class="choix-nom"><b>${esc(r.libelle)}</b><small>${uniques(r.principal).slice(0, 6).map(x => x.toLowerCase()).join(', ')}</small></span>
+          ${prevu[r.code] ? `<span class="deja">déjà ${prevu[r.code].join(', ')}</span>` : ''}
+        </button>`).join('') || '<div class="aide" style="padding:14px;text-align:center">Aucun repas trouvé.</div>';
+      emojis(document.getElementById('listeChoix'));
+    }
+    function choisirRepas(code) {
+      fermer('fondChoix');
+      planifier(choixCreneau.date, choixCreneau.service, code);
+    }
+
+    // ----- Nombre de personnes -----
+    let persTimer = null;
+    function changerPersonnes(delta) {
+      personnesDefaut = Math.min(30, Math.max(1, personnesDefaut + delta));
+      afficherPlanning();
+      clearTimeout(persTimer);
+      persTimer = setTimeout(() => serveur('definirPersonnes', personnesDefaut, () => {}, erreur), 600);
+    }
+
+    let persCreneau = null, persEdition = 4;
+    function ouvrirPers(date, service) {
+      const e = entree(date, service), r = e && repasDe(e.code);
+      if (!r) return;
+      persCreneau = { date, service };
+      persEdition = e.personnes || personnesDefaut;
+      document.getElementById('sousPers').textContent = `${r.libelle} · ${dateLongue(dateDe(date))}`;
+      document.getElementById('valPers').textContent = persEdition;
+      document.getElementById('fondPers').classList.add('ouvert');
+    }
+    function ajusterPers(n) {
+      persEdition = Math.min(30, Math.max(1, persEdition + n));
+      document.getElementById('valPers').textContent = persEdition;
+    }
+    function validerPers(v) {
+      fermer('fondPers');
+      const { date, service } = persCreneau;
+      const e = entree(date, service);
+      if (!e) return;
+      appelPlanning('planifierRepas', [date, service, e.code, v], () => { e.personnes = v; });
+    }
+
+    // ================= Liste de courses =================
+
+    let inclureFac = false;
+
+    // Convertit en unités de base (g, ml, pièce) pour pouvoir additionner
+    function baseUnite(valeur, unite) {
+      const u = String(unite || '').trim().toLowerCase();
+      const t = { g: ['g', 1], gr: ['g', 1], kg: ['g', 1000], ml: ['ml', 1], cl: ['ml', 10], l: ['ml', 1000],
+                  'pièce': ['pièce', 1], 'pièces': ['pièce', 1], piece: ['pièce', 1], pieces: ['pièce', 1], pcs: ['pièce', 1], 'unité': ['pièce', 1] }[u];
+      return t ? [t[0], valeur * t[1]] : [u, valeur];
+    }
+
+    function fmtNombre(n) { return String(Math.round(n * 10) / 10).replace('.', ','); }
+    function fmtQte(u, v) {
+      if (u === 'g' || u === 'ml') {
+        if (v >= 1000) return fmtNombre(v / 1000) + (u === 'g' ? ' kg' : ' l');
+        return (v >= 100 ? Math.ceil(v / 10) * 10 : Math.round(v)) + ' ' + u;
+      }
+      if (u === 'pièce') { const n = Math.ceil(v - 1e-9); return n + (n > 1 ? ' pièces' : ' pièce'); }
+      return fmtNombre(v) + (u ? ' ' + u : '');
+    }
+
+    // Total de la semaine par ingrédient : quantité par personne × nombre de personnes, repas par repas
+    function calculerCourses() {
+      const lignes = {};
+      entreesSemaine().forEach(e => {
+        const r = repasDe(e.code), p = e.personnes || personnesDefaut;
+        const src = inclureFac ? r.principal + ' / ' + r.facultatif : r.principal;
+        [...new Set(decouper(src).map(canon))].forEach(c => {
+          const l = lignes[c] = lignes[c] || { totaux: {}, manque: false };
+          const q = QTE[c];
+          if (!q || !q.qte) { l.manque = true; return; }
+          const [u, v] = baseUnite(q.qte * p, q.unite);
+          l.totaux[u] = (l.totaux[u] || 0) + v;
+        });
+      });
+      return lignes;
+    }
+
+    const nomPropre = c => c.charAt(0) + c.slice(1).toLowerCase();
+    function cleAchete(c) { return 'achete:' + iso(semaineDebut) + ':' + c; }
+    function estAchete(c) { try { return localStorage.getItem(cleAchete(c)) === '1'; } catch (e) { return false; } }
+    function cocherCourse(c, input) {
+      try { localStorage.setItem(cleAchete(c), input.checked ? '1' : '0'); } catch (e) {}
+      input.closest('.ligne-cse').classList.toggle('fait', input.checked);
+    }
+
+    function textePrix(l) {
+      const parts = Object.keys(l.totaux).map(u => fmtQte(u, l.totaux[u]));
+      return parts.length ? parts.join(' + ') : '';
+    }
+
+    function groupesCourses() {
+      const lignes = calculerCourses();
+      const parFam = {};
+      Object.keys(lignes).forEach(c => (parFam[familleDe(c)] = parFam[familleDe(c)] || []).push(c));
+      const ordre = FAMILLES.map(([f]) => f).filter(f => parFam[f]);
+      Object.keys(parFam).filter(f => !ordre.includes(f) && f !== A_CLASSER).sort().forEach(f => ordre.push(f));
+      if (parFam[A_CLASSER]) ordre.push(A_CLASSER);
+      ordre.forEach(f => parFam[f].sort((a, b) => a.localeCompare(b)));
+      return { lignes, parFam, ordre };
+    }
+
+    function ouvrirCourses() {
+      rendreCourses();
+      document.getElementById('fondCourses').classList.add('ouvert');
+    }
+
+    function rendreCourses() {
+      const nb = entreesSemaine().length;
+      const { lignes, parFam, ordre } = groupesCourses();
+      const manquants = Object.keys(lignes).filter(c => lignes[c].manque);
+      document.getElementById('courses').innerHTML = `
+        <div class="fenetre-tete">
+          <div><h2>🛒 Liste de courses</h2><p>${esc(titreSemaine())} · ${nb} repas</p></div>
+          <button class="rond" onclick="fermer('fondCourses')">✕</button>
+        </div>
+        ${nb ? `
+          <label class="case-cse"><input type="checkbox" ${inclureFac ? 'checked' : ''} onchange="inclureFac=this.checked;rendreCourses()"> Inclure les ingrédients facultatifs</label>
+          <p class="note-cse">Quantités approximatives : quantité par personne × nombre de personnes, calculée repas par repas (onglet « Ingrédients » du Google Sheet).</p>
+          ${manquants.length ? `<div class="alerte douce">⚠️ <span>${manquants.length} ingrédient(s) sans quantité : cliquez sur ✏️ pour la renseigner.</span></div>` : ''}
+          ${ordre.map(f => `
+            <div class="cse-groupe" style="background:${FOND_FAMILLE[f] || FOND_AUTRE}">
+              <h4>${emojiFamille(f)} ${esc(nomPropre(f))}</h4>
+              ${parFam[f].map(c => {
+                const t = textePrix(lignes[c]);
+                return `<label class="ligne-cse ${estAchete(c) ? 'fait' : ''}">
+                  <input type="checkbox" ${estAchete(c) ? 'checked' : ''} onchange="cocherCourse('${esc(c)}',this)">
+                  <span>${icone(c)}</span><span class="nom">${esc(nomPropre(c))}</span>
+                  <span class="qte ${t ? '' : 'manque'}">${t || 'à définir'}${t && lignes[c].manque ? ' +' : ''}</span>
+                  <button class="mini" title="Modifier la quantité par personne" onclick="event.preventDefault();ouvrirQte('${esc(c)}')">✏️</button>
+                </label>`;
+              }).join('')}
+            </div>`).join('')}
+          <div class="actions">
+            <button class="btn btn-contour" onclick="copierCourses()">📋 Copier</button>
+            <button class="btn btn-contour" onclick="imprimerCourses()">🖨️ Imprimer</button>
+            <button class="btn btn-noir" onclick="fermer('fondCourses')">Fermer</button>
+          </div>` : `
+          <div class="vide" style="padding:30px 10px"><div>📅</div><b>Aucun repas planifié cette semaine</b>Ajoutez des repas dans le calendrier pour obtenir la liste de courses.</div>
+          <div class="actions"><button class="btn btn-noir" onclick="fermer('fondCourses')">Fermer</button></div>`}`;
+      emojis(document.getElementById('courses'));
+    }
+
+    function texteCourses() {
+      const { lignes, parFam, ordre } = groupesCourses();
+      const nb = entreesSemaine().length;
+      return [`🛒 Liste de courses : ${titreSemaine()} (${nb} repas)`].concat(
+        ordre.map(f => `\n${emojiFamille(f)} ${nomPropre(f)}\n` +
+          parFam[f].map(c => `- ${nomPropre(c)} : ${textePrix(lignes[c]) || 'à définir'}`).join('\n'))).join('\n');
+    }
+
+    function copierCourses() {
+      const t = texteCourses();
+      const secours = () => {
+        const a = document.createElement('textarea');
+        a.value = t; document.body.appendChild(a); a.select();
+        try { document.execCommand('copy'); toast('✓ Liste copiée'); } catch (e) { toast('Copie impossible : sélectionnez le texte à la main'); }
+        a.remove();
+      };
+      if (navigator.clipboard && navigator.clipboard.writeText) navigator.clipboard.writeText(t).then(() => toast('✓ Liste copiée'), secours);
+      else secours();
+    }
+
+    function imprimerCourses() {
+      try { window.print(); } catch (e) { toast('Impression impossible ici : utilisez Copier'); }
+    }
+
+    // ----- Modifier la quantité par personne d'un ingrédient -----
+    let qteIngr = '';
+    function ouvrirQte(c) {
+      qteIngr = c;
+      const q = QTE[c] || {};
+      document.getElementById('titreQte').textContent = `${icone(c)} ${nomPropre(c)}`;
+      document.getElementById('qteVal').value = q.qte !== undefined ? q.qte : '';
+      document.getElementById('qteUnite').value = q.unite || '';
+      emojis(document.getElementById('titreQte'));
+      document.getElementById('fondQte').classList.add('ouvert');
+      document.getElementById('qteVal').focus();
+    }
+    function validerQte() {
+      const v = document.getElementById('qteVal').value;
+      const u = document.getElementById('qteUnite').value.trim();
+      fermer('fondQte');
+      serveur('changerQuantite', [qteIngr, v === '' ? '' : Number(v), u], l => {
+        maj(l);
+        if (document.getElementById('fondCourses').classList.contains('ouvert')) rendreCourses();
+        toast('✓ Quantité enregistrée');
+      }, erreur);
+    }
 
     charger();
   </script>
